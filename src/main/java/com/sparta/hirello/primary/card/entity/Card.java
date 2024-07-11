@@ -1,16 +1,18 @@
-package com.sparta.hirello.domain.card.entity;
+package com.sparta.hirello.primary.card.entity;
 
-import com.sparta.hirello.domain.comment.entity.Comment;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
+import com.sparta.hirello.primary.column.entity.Columns;
+import com.sparta.hirello.primary.comment.entity.Comment;
+import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.sparta.hirello.domain.column.entity.Columns;
-import com.sparta.hirello.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -46,4 +48,15 @@ public class Card {
 
     @OneToMany(mappedBy = "card")
     private List<Comment> commentList;
+
+    @Builder
+    public Card(String title, String description, LocalDateTime deadlineAt,
+                User worker, Columns columns, User user) {
+        this.title = title;
+        this.description = description;
+        this.deadlineAt = deadlineAt;
+        this.worker = worker;
+        this.columns = columns;
+        this.user = user;
+    }
 }
