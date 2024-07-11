@@ -1,6 +1,7 @@
 package com.sparta.hirello.primary.column.entity;
 
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
@@ -37,5 +38,8 @@ public class Columns {
         this.columnName=columnName;
         this.user=user;
         this.board=board;
+    }
+    public static Columns of(String columnName, User user, Board board) {
+        return new Columns(columnName, user, board);
     }
 }
