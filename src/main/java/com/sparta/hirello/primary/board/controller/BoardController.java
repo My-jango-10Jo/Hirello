@@ -5,6 +5,7 @@ import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity
 import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
 import com.sparta.hirello.primary.board.dto.response.BoardResponseDto;
 import com.sparta.hirello.primary.board.service.BoardService;
+import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -41,6 +42,20 @@ public class BoardController {
     ) {
         BoardResponseDto responseDto = boardService.createBoard(userDetails, requestDto);
         return getResponseEntity(responseDto, "보드 생성 완료 ");
+    }
+
+    /**
+     * 보드에 유저를 초대 합니다.
+     *
+     * @param userDetails 인가된 유저 정보
+     * @param boardId     클라이언트에서 요청한 보드 생성 정보
+     */
+    @PostMapping("/{boardId}")
+    public ResponseEntity<CommonResponse<?>> boardUserVisit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long boardId) {
+        User user = boardService.boardUserVisit(userDetails.getUser(), boardId);
+        return null;//미구현
     }
 
     /**
