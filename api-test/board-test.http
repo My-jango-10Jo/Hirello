@@ -1,0 +1,80 @@
+@adminUsername = admin1234
+@adminEmail = admin123@email.com
+@admincode = WkdWMlpXNTBaWElnYzNWd1pYSWdZV1J0YVc0Z1kyOWtaUT0
+@password1 = Abcdef12345!
+@nickname2 = second_name
+@post_id = 3
+@comment_id = 1
+@title = 제목
+@content = 내용테스트
+
+@categoryid = 3
+@categoryTopic = FrontEnd
+@username = user2345
+@password = Abcdef12345!
+@nickname = 닉네임1
+@email = test9@example.com
+
+@username1 = user1234
+# 일반권한인 유저 테스트입니다.
+
+### 유저 회원 가입
+POST http://localhost:8080/api/user/signup
+Content-Type: application/json
+
+{
+  "username":"{{username1}}",
+  "password":"{{password}}",
+  "name" : "이순모"
+}
+
+### 로그인
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+
+{
+  "username":"{{username}}",
+  "password":"{{password}}"
+}
+> {%
+  client.global.set("Authorization", response.headers.valueOf("Authorization"));
+%}
+
+### 보드 생성
+POST http://localhost:8080/boards
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+{
+  "boardName": "테스트3",
+  "headline": "테스트 유저를 위한 공간2"
+}
+
+### 보드 수정
+PUT http://localhost:8080/boards/1
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+{
+  "boardName": "수정 테스트",
+  "headline": "수정 테스트 유저를 위한 공간"
+}
+
+### 보드 삭제
+DELETE http://localhost:8080/boards/1
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+### 보드 조회
+GET http://localhost:8080/boards
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+### 보드 초대
+POST http://localhost:8080/boards/2
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+{
+  "userId": 2
+}

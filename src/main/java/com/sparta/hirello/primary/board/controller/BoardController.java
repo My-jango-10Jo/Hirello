@@ -2,10 +2,11 @@ package com.sparta.hirello.primary.board.controller;
 
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
-import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
-import com.sparta.hirello.primary.board.dto.response.BoardResponseDto;
+import com.sparta.hirello.primary.board.dto.request.BoardRequest;
+import com.sparta.hirello.primary.board.dto.request.BoardUserVisitRequest;
+import com.sparta.hirello.primary.board.dto.response.BoardResponse;
+import com.sparta.hirello.primary.board.dto.response.BoardUserVisitResponse;
 import com.sparta.hirello.primary.board.service.BoardService;
-import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -38,9 +39,9 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<CommonResponse<?>> createBoard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BoardRequestDto requestDto
+            @Valid @RequestBody BoardRequest requestDto
     ) {
-        BoardResponseDto responseDto = boardService.createBoard(userDetails, requestDto);
+        BoardResponse responseDto = boardService.createBoard(userDetails, requestDto);
         return getResponseEntity(responseDto, "보드 생성 완료 ");
     }
 
@@ -53,9 +54,11 @@ public class BoardController {
     @PostMapping("/{boardId}")
     public ResponseEntity<CommonResponse<?>> boardUserVisit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long boardId) {
-        User user = boardService.boardUserVisit(userDetails.getUser(), boardId);
-        return null;//미구현
+            @PathVariable Long boardId,
+            @RequestBody BoardUserVisitRequest request) {
+        BoardUserVisitResponse response = boardService.boardUserVisit(userDetails.getUser(),
+                boardId, request);
+        return getResponseEntity(response, "초대 완료");//미구현
     }
 
     /**
@@ -64,7 +67,7 @@ public class BoardController {
     @GetMapping
     public ResponseEntity<CommonResponse<?>> getBoardList(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<BoardResponseDto> responseDtos = boardService.getBoardList(userDetails.getUser());
+        List<BoardResponse> responseDtos = boardService.getBoardList(userDetails.getUser());
 
         return getResponseEntity(responseDtos, "보드 목록 조회 완료");
     }
@@ -79,10 +82,10 @@ public class BoardController {
     @PutMapping("/{boardId}")
     public ResponseEntity<CommonResponse<?>> updateBoard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BoardRequestDto requestDto,
+            @Valid @RequestBody BoardRequest requestDto,
             @PathVariable Long boardId
     ) {
-        BoardResponseDto responseDto = boardService.updateBoard(userDetails, requestDto, boardId);
+        BoardResponse responseDto = boardService.updateBoard(userDetails, requestDto, boardId);
 
         return getResponseEntity(responseDto, "보드 수정 완료");
     }

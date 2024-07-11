@@ -1,6 +1,6 @@
 package com.sparta.hirello.primary.board.entity;
 
-import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
+import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.CascadeType;
@@ -44,10 +44,14 @@ public class Board {
     @OneToMany(mappedBy = "board", orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<BoardMember> memberList = new ArrayList<>();
 
-    public Board(BoardRequestDto requestDto, User user) {
+    private Board(BoardRequest requestDto, User user) {
         this.user = user;
         this.boardName = requestDto.getBoardName();
         this.headline = requestDto.getHeadline();
+    }
+
+    public static Board of(BoardRequest requestDto, User user) {
+        return new Board(requestDto, user);
     }
 
     public void update(String boardName, String headline) {
