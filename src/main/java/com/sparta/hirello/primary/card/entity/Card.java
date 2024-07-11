@@ -1,6 +1,5 @@
 package com.sparta.hirello.domain.card.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.domain.comment.entity.Comment;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,12 +9,15 @@ import com.sparta.hirello.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "cards")
 public class Card {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cardId;
