@@ -25,11 +25,11 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping("/card")
-    public ResponseEntity<CommonResponse<Object>> postCard(
+    public ResponseEntity<CommonResponse<Object>> createCard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody final CreateCardRequest request
             ) {
-        Card newCard = cardService.postCard(userDetails, request);
+        Card newCard = cardService.createCard(userDetails, request);
         return getResponseEntity(CardResponse.of(newCard), "등록 성공");//임시
     }
 
