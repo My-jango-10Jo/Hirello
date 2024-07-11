@@ -2,15 +2,17 @@ package com.sparta.hirello.primary.board.controller;
 
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
+import com.sparta.hirello.primary.board.dto.BoardResponseDto;
 import com.sparta.hirello.primary.board.dto.CreateBoardRequestDto;
-import com.sparta.hirello.primary.board.dto.CreateBoardResponseDto;
 import com.sparta.hirello.primary.board.service.BoardService;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,15 +31,23 @@ public class BoardController {
      * @param userDetails 인가된 유저 정보
      * @param requestDto  클라이언트에서 요청한 유저 생성 정보
      */
-
     @PostMapping
     public ResponseEntity<CommonResponse<?>> createBoard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody CreateBoardRequestDto requestDto
     ) {
-        CreateBoardResponseDto responseDto = boardService.createBoard(userDetails, requestDto);
-        return getResponseEntity(responseDto, "보드 생성이 완료 되었습니다.");
+        BoardResponseDto responseDto = boardService.createBoard(userDetails, requestDto);
+        return getResponseEntity(responseDto, "보드 생성 완료 ");
     }
 
+    /**
+     * 보드 목록들을 조회 합니다.
+     */
+    @GetMapping
+    public ResponseEntity<CommonResponse<?>> getBoardList() {
+        List<BoardResponseDto> responseDtos = boardService.getBoardList();
+
+        return getResponseEntity(responseDtos, "보드 목록 조회 완료");
+    }
 
 }
