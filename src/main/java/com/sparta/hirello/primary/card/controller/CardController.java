@@ -31,7 +31,7 @@ public class CardController {
     private final CardService cardService;
 
     /**
-     * 카드 생성
+     * Card 생성
      * @param userDetails
      * @param request
      */
@@ -61,7 +61,7 @@ public class CardController {
     }
 
     /**
-     * 작업자별 Card 조회
+     * Worker 별 Card 조회
      * @param userDetails
      * @param request
      * @return
