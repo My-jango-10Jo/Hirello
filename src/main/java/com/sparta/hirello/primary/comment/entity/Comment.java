@@ -2,6 +2,7 @@ package com.sparta.hirello.primary.comment.entity;
 
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.column.entity.Columns;
+import com.sparta.hirello.primary.comment.dto.CommentRequest;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,4 +53,13 @@ public class Comment {
     @JoinColumn(name = "column_id", nullable = false)
     private Columns columns;
 
+    public Comment(CommentRequest request, Card card, User user) {
+        this.content = request.getContent();
+        this.user = user;
+        this.card = card;
+    }
+
+    public void update(CommentRequest requestDto) {
+        this.content = requestDto.getContent();
+    }
 }
