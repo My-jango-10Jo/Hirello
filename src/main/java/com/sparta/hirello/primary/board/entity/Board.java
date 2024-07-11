@@ -1,5 +1,6 @@
 package com.sparta.hirello.primary.board.entity;
 
+import com.sparta.hirello.primary.board.dto.CreateBoardRequestDto;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.Column;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,5 +38,11 @@ public class Board {
     private String headline;
 
     @OneToMany(mappedBy = "board")
-    private List<Columns> columnsList;
+    private List<Columns> columnsList = new ArrayList<>();
+
+    public Board(CreateBoardRequestDto requestDto, User user) {
+        this.user = user;
+        this.boardName = requestDto.getBoardName();
+        this.headline = requestDto.getHeadline();
+    }
 }
