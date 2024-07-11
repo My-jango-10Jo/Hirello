@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class BoardController {
      * 보드를 생성 합니다.
      *
      * @param userDetails 인가된 유저 정보
-     * @param requestDto  클라이언트에서 요청한 유저 생성 정보
+     * @param requestDto  클라이언트에서 요청한 보드 생성 정보
      */
     @PostMapping
     public ResponseEntity<CommonResponse<?>> createBoard(
@@ -46,14 +47,19 @@ public class BoardController {
      * 보드 목록들을 조회 합니다.
      */
     @GetMapping
-    public ResponseEntity<CommonResponse<?>> getBoardList() {
-        List<BoardResponseDto> responseDtos = boardService.getBoardList();
+    public ResponseEntity<CommonResponse<?>> getBoardList(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<BoardResponseDto> responseDtos = boardService.getBoardList(userDetails.getUser());
 
         return getResponseEntity(responseDtos, "보드 목록 조회 완료");
     }
 
     /**
      * 보드 수정
+     *
+     * @param userDetails 인가된 유저 정보
+     * @param requestDto  클라이언트에서 요청한 보드 수정 정보
+     * @param boardId     수정 해야할 보드 정보
      */
     @PutMapping("/{boardId}")
     public ResponseEntity<CommonResponse<?>> updateBoard(
@@ -64,6 +70,21 @@ public class BoardController {
         BoardResponseDto responseDto = boardService.updateBoard(userDetails, requestDto, boardId);
 
         return getResponseEntity(responseDto, "보드 수정 완료");
+    }
+
+    /**
+     * 보드 삭제
+     *
+     * @param userDetails 인가된 유저 정보
+     * @param boardId     삭제 해야할 보드 정보
+     */
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<CommonResponse<?>> deleteBoard(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long boardId
+    ) {
+        boardService.deleteBoard(userDetails, boardId);
+        return getResponseEntity(1, "보드 삭제 완료");
     }
 
 }
