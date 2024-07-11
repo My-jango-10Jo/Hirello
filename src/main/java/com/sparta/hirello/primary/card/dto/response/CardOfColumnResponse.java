@@ -8,11 +8,10 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
-public class CardOfSpecificWorkerResponse {
+public class CardOfColumnResponse {
 
     private Long boardId;
 
@@ -23,14 +22,14 @@ public class CardOfSpecificWorkerResponse {
     private String workerName;
     private Columns columns;
 
-    private final List<CardResponse> cardOfWorkerList;
+    private final List<CardResponse> cardOfColumnList;
 
-    public static CardOfSpecificWorkerResponse of(List<Card> checkedCardList) {
-        List<CardResponse> cardResponseList = checkedCardList.stream()
+    public static CardOfColumnResponse of(List<Card> checkedCardList) {
+        List<CardResponse> cardOfColumnList = checkedCardList.stream()
                 .map(CardResponse::of).toList();
 
-        return CardOfSpecificWorkerResponse.builder()
-                .cardOfWorkerList(cardResponseList)
+        return CardOfColumnResponse.builder()
+                .cardOfColumnList(cardOfColumnList)
                 .build();
     }
 }

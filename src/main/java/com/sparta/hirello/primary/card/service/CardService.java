@@ -2,6 +2,7 @@ package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
+import com.sparta.hirello.primary.card.dto.request.CardOfColumnRequest;
 import com.sparta.hirello.primary.card.dto.request.CardOfSpecificWorkerRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
@@ -30,6 +31,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardMemberRepository boardMemberRepository;
 
+    @Transactional
     public Card createCard(User loginUser, CreateCardRequest request) {
 
         //board 존재 확인 및 추출
@@ -80,6 +82,23 @@ public class CardService {
         }
 
         return CardListOfSpecificWorker;
+    }
+
+    public List<Card> getCardOfColumn(User loginUser, CardOfColumnRequest request) {
+
+        //board 존재 확인 및 추출
+        Board checkedBoard = checkBoard(request.getBoardId());
+
+        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
+        Long loginUserId = getUserId(loginUser.getUsername());
+        checkMember(checkedBoard.getBoardId(), loginUserId);
+
+        List<Card> cardListOfColumn = cardRepository.findCardByColumnsColumnId(request.getColumnId());
+        if (cardListOfColumn.isEmpty()) {
+            throw new EntityNotFoundException("컬럼이 비어있습니다.");
+        }
+
+        return cardListOfColumn;
     }
 
 

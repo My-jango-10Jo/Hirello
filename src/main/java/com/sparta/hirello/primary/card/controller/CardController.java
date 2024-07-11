@@ -1,14 +1,15 @@
 package com.sparta.hirello.primary.card.controller;
 
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.card.dto.request.CardOfColumnRequest;
 import com.sparta.hirello.primary.card.dto.request.CardOfSpecificWorkerRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.dto.response.AllCardOfBoardResponse;
+import com.sparta.hirello.primary.card.dto.response.CardOfColumnResponse;
 import com.sparta.hirello.primary.card.dto.response.CardOfSpecificWorkerResponse;
 import com.sparta.hirello.primary.card.dto.response.CardResponse;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.service.CardService;
-import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -64,7 +65,6 @@ public class CardController {
      * Worker 별 Card 조회
      * @param userDetails
      * @param request
-     * @return
      */
     @GetMapping("/workers")
     public ResponseEntity<CommonResponse<?>> getCardOfSpecificWorker (
@@ -75,7 +75,19 @@ public class CardController {
         return getResponseEntity(CardOfSpecificWorkerResponse.of(checkedCardList), "조회 성공");
     }
 
-
+    /**
+     * Column 별 Card 조회
+     * @param userDetails
+     * @param request
+     */
+    @GetMapping("/column")
+    public ResponseEntity<CommonResponse<?>> getCardOfColumn (
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody final CardOfColumnRequest request
+    ){
+        List<Card> checkedCardList = cardService.getCardOfColumn(userDetails.getUser(), request);
+        return getResponseEntity(CardOfColumnResponse.of(checkedCardList), "조회 성공");
+    }
 
 
 }
