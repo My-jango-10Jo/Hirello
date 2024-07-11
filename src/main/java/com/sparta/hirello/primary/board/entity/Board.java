@@ -1,6 +1,6 @@
 package com.sparta.hirello.primary.board.entity;
 
-import com.sparta.hirello.primary.board.dto.CreateBoardRequestDto;
+import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.Column;
@@ -40,9 +40,14 @@ public class Board {
     @OneToMany(mappedBy = "board")
     private List<Columns> columnsList = new ArrayList<>();
 
-    public Board(CreateBoardRequestDto requestDto, User user) {
+    public Board(BoardRequestDto requestDto, User user) {
         this.user = user;
         this.boardName = requestDto.getBoardName();
         this.headline = requestDto.getHeadline();
+    }
+
+    public void update(String boardName, String headline) {
+        this.boardName = boardName;
+        this.headline = headline;
     }
 }

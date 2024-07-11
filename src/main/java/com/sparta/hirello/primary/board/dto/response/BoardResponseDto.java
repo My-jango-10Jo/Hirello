@@ -1,4 +1,4 @@
-package com.sparta.hirello.primary.board.dto;
+package com.sparta.hirello.primary.board.dto.response;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import lombok.RequiredArgsConstructor;
