@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .kanban-board {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .kanban-column {
+            background: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            width: 300px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .kanban-column h2 {
+            text-align: center;
+            color: #333;
+        }
+        .kanban-cards {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .kanban-card {
+            background: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: grab;
+        }
+        .add-card-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .login-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+        }
+        .login-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .login-form input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .login-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-btn {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-form" id="login-form">
+        <input type="text" id="username" placeholder="Enter username">
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="login()">Login</button>
+    </div>
+    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logout()">Logout</button>
+</div>
+
+<div class="kanban-board" id="kanban-board">
+    <div class="kanban-column" id="todo-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>To Do</h2>
+        <div class="kanban-cards" id="todo-cards">
+            <div class="kanban-card" id="task1" draggable="true" ondragstart="drag(event)">Task 1</div>
+            <div class="kanban-card" id="task2" draggable="true" ondragstart="drag(event)">Task 2</div>
+        </div>
+        <button class="add-card-btn" onclick="addCard('todo-column')">Add Card</button>
+    </div>
+    <div class="kanban-column" id="in-progress-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>In Progress</h2>
+        <div class="kanban-cards" id="in-progress-cards"></div>
+        <button class="add-card-btn" onclick="addCard('in-progress-column')">Add Card</button>
+    </div>
+    <div class="kanban-column" id="done-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>Done</h2>
+        <div class="kanban-cards" id="done-cards"></div>
+        <button class="add-card-btn" onclick="addCard('done-column')">Add Card</button>
+    </div>
+</div>
+
+<script>
+    // Drag and Drop Functions
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const data = event.dataTransfer.getData("text");
+        const card = document.getElementById(data);
+        let targetColumn;
+
+        if (event.target.classList.contains("kanban-cards")) {
+            event.target.appendChild(card);
+            targetColumn = event.target.parentElement;
+        } else if (event.target.classList.contains("kanban-column")) {
+            event.target.querySelector('.kanban-cards').appendChild(card);
+            targetColumn = event.target;
+        } else if (event.target.classList.contains("kanban-card")) {
+            event.target.parentElement.insertBefore(card, event.target.nextSibling);
+            targetColumn = event.target.parentElement.parentElement;
+        }
+
+        const cardName = card.textContent.trim();
+        const columnName = targetColumn.querySelector('h2').textContent.trim();
+        alert(`${cardName}을(를) ${columnName}으로 옮겼습니다!`);
+    }
+
+    function addCard(columnId) {
+        const cardText = prompt('Enter card text:');
+        if (cardText) {
+            const column = document.getElementById(columnId);
+            const newCard = document.createElement('div');
+            newCard.className = 'kanban-card';
+            newCard.textContent = cardText;
+            newCard.setAttribute('draggable', 'true');
+            newCard.setAttribute('ondragstart', 'drag(event)');
+            newCard.id = 'card-' + Date.now();
+            column.querySelector('.kanban-cards').appendChild(newCard);
+        }
+    }
+
+    // Login/Logout Functions
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === 'user' && password === 'pass') {
+            localStorage.setItem('loggedIn', 'true');
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('logout-btn').style.display = 'block';
+        } else {
+            alert('Invalid credentials');
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedIn');
+        document.getElementById('login-form').style.display = 'flex';
+        document.getElementById('logout-btn').style.display = 'none';
+    }
+
+    // Check Login Status on Page Load
+    window.onload = function() {
+        if (localStorage.getItem('loggedIn') === 'true') {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('logout-btn').style.display = 'block';
+        } else {
+            document.getElementById('login-form').style.display = 'flex';
+            document.getElementById('logout-btn').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
