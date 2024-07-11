@@ -2,6 +2,7 @@ package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
+import com.sparta.hirello.primary.card.dto.request.CardOfSpecificWorkerRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.repository.CardRepository;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -36,7 +39,6 @@ public class CardService {
         Long loginUserId = getUserId(loginUser.getUsername());
         checkMember(checkedBoard.getBoardId(), loginUserId);
 
-        //column 존재 확인
         Columns existColumn = isExistColumn(checkedBoard, request.getColumnId());
 
         //할당된 작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
@@ -58,6 +60,26 @@ public class CardService {
         checkMember(checkedBoard.getBoardId(), loginUserId);
 
         return checkedBoard;
+    }
+
+    public List<Card> getCardOfSpecificWorker(User loginUser, CardOfSpecificWorkerRequest request) {
+
+        //board 존재 확인 및 추출
+        Board checkedBoard = checkBoard(request.getBoardId());
+
+        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
+        Long loginUserId = getUserId(loginUser.getUsername());
+        checkMember(checkedBoard.getBoardId(), loginUserId);
+
+        //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
+        User worker = invitedUser(checkedBoard.getBoardId(), request.getWorkerId());
+
+        List<Card> CardListOfSpecificWorker =  cardRepository.findCardByWorkerId(worker.getId());
+        if (CardListOfSpecificWorker.isEmpty()) {
+            throw new EntityNotFoundException("작업자에게 할당된 카드가 없습니다.");
+        }
+
+        return CardListOfSpecificWorker;
     }
 
 
@@ -99,5 +121,4 @@ public class CardService {
         return boardMemberRepository.findMemberByBoardIdandUserId(boardId, workerId)
                 .orElseThrow(() -> new EntityNotFoundException("보드멤버가 아닙니다."));
     }
-
 }

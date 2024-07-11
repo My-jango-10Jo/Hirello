@@ -1,9 +1,7 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.card.dto.response.CardResponse;
 import com.sparta.hirello.primary.column.entity.Columns;
-import com.sparta.hirello.primary.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +21,7 @@ public class AllCardOfBoardResponse {
     private String title;
     private String description;
     private LocalDateTime deadlineAt;
-    private User worker;
+    private String workerName;
     private Columns columns;
 
     private final List<CardResponse> cardOfBoardList;
