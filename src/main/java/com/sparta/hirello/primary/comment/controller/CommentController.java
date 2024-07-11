@@ -26,4 +26,14 @@ public class CommentController {
                 .build();
     }
 
+    @PatchMapping("/{commentId}")
+    public CommonResponse updateComment(@PathVariable Long cardId,@PathVariable Long commentId,@RequestBody CommentRequest request,
+                                        UserDetailsImpl userDetails){
+        commentService.updateComment(cardId,commentId,request,userDetails.getUser());
+
+        return CommonResponse.builder()
+                .statusCode(204)
+                .build();
+    }
+
 }
