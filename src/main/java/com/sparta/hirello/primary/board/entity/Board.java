@@ -3,6 +3,7 @@ package com.sparta.hirello.primary.board.entity;
 import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,6 +40,9 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<Columns> columnsList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private List<BoardMember> memberList = new ArrayList<>();
 
     public Board(BoardRequestDto requestDto, User user) {
         this.user = user;

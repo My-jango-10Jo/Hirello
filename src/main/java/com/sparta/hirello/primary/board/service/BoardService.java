@@ -3,6 +3,7 @@ package com.sparta.hirello.primary.board.service;
 import com.sparta.hirello.primary.board.dto.request.BoardRequestDto;
 import com.sparta.hirello.primary.board.dto.response.BoardResponseDto;
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.entity.UserRole;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
 
     /**
@@ -53,6 +55,8 @@ public class BoardService {
             for (Board board : boards) {
                 responseDtos.add(new BoardResponseDto(board, board.getUser().getUsername()));
             }
+        } else {
+
         }
 
         return responseDtos;
