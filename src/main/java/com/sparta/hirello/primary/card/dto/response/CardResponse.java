@@ -14,7 +14,7 @@ public class CardResponse {
     private String title;
     private String description;
     private LocalDateTime deadlineAt;
-    private User worker;
+    private String workerName;
     private Columns columns;
 
     private CardResponse(Card card) {
@@ -22,7 +22,7 @@ public class CardResponse {
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadlineAt = card.getDeadlineAt();
-        this.worker = card.getWorker();
+        this.workerName = card.getWorker().getUsername();
         this.columns = card.getColumns();
     }
 

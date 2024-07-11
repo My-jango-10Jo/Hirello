@@ -14,10 +14,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CardService {
 
     private final UserRepository userRepository;
@@ -25,14 +27,13 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardMemberRepository boardMemberRepository;
 
-    public Card createCard(UserDetailsImpl userDetails, CreateCardRequest request) {
+    public Card createCard(User loginUser, CreateCardRequest request) {
 
         //board 존재 확인 및 추출
         Board checkedBoard = checkBoard(request.getBoardId());
 
-        //loginUser 의 Id & 객체 추출 and 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(userDetails.getUsername());
-        User loginUser = getUser(loginUserId);
+        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
+        Long loginUserId = getUserId(loginUser.getUsername());
         checkMember(checkedBoard.getBoardId(), loginUserId);
 
         //column 존재 확인
@@ -47,17 +48,22 @@ public class CardService {
     }
 
 
-    public Board getAllCardOfBoard(UserDetailsImpl userDetails, Long boardId) {
+    public Board getAllCardOfBoard(User loginUser, Long boardId) {
 
         //board 존재 확인 및 추출
         Board checkedBoard = checkBoard(boardId);
 
         //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(userDetails.getUsername());
+        Long loginUserId = getUserId(loginUser.getUsername());
         checkMember(checkedBoard.getBoardId(), loginUserId);
 
         return checkedBoard;
     }
+
+
+
+
+
 
     private Board checkBoard(Long boardId) {
         return boardRepository.findBoardByBoardId(boardId)
