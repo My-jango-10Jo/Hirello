@@ -1,4 +1,4 @@
-package com.sparta.hirello.primary.card.dto;
+package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.column.entity.Columns;
@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 @Data
 public class CardResponse {
 
-    Long cardId;
-    String title;
-    String description;
-    LocalDateTime deadlineAt;
-    User worker;
-    Columns columns;
+    private Long cardId;
+    private String title;
+    private String description;
+    private LocalDateTime deadlineAt;
+    private User worker;
+    private Columns columns;
 
     private CardResponse(Card card) {
         this.cardId = card.getCardId();
@@ -29,4 +29,5 @@ public class CardResponse {
     public static CardResponse of(Card card) {
         return new CardResponse(card);
     }
+
 }
