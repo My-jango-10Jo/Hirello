@@ -1,9 +1,9 @@
 package com.sparta.hirello.primary.card.controller;
 
+import com.sparta.hirello.primary.card.dto.CardResponse;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.service.CardService;
-import com.sparta.hirello.primary.user.dto.response.UserResponse;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -25,12 +27,12 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping("/card")
-    public ResponseEntity<CommonResponse<Object>> createCard(
+    public ResponseEntity<CommonResponse<?>> createCard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody final CreateCardRequest request
-            ) {
+    ) {
         Card newCard = cardService.createCard(userDetails, request);
-        return getResponseEntity(CardResponse.of(newCard), "등록 성공");//임시
+        return getResponseEntity(CardResponse.of(newCard), "등록 성공");
     }
 
 }
