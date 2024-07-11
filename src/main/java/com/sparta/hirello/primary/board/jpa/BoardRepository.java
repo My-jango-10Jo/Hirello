@@ -5,6 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface BoardRepository extends JpaRepository<Board, String>, BoardRepositoryCustom {
-    Optional<Board> findByBoardId(Long boardId);
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
 }

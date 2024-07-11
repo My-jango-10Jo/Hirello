@@ -5,6 +5,7 @@ import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "columns")
 public class Columns {
 
@@ -31,10 +32,10 @@ public class Columns {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @OneToMany(mappedBy = "columns")
+    @OneToMany(mappedBy = "columns", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cardList;
 
-    public Columns(String columnName, User user, Board board){
+    private Columns(String columnName, User user, Board board){
         this.columnName=columnName;
         this.user=user;
         this.board=board;

@@ -25,8 +25,8 @@ public class ColumnService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
 
-    public ResponseEntity<CommonResponse<?>> createColumn(ColumnRequest request, User user){
-        Board board=boardRepository.findByBoardId(request.getBoardId()).orElseThrow(
+    public Columns createColumn(ColumnRequest request, User user){
+        Board board=boardRepository.findById(request.getBoardId()).orElseThrow(
                 ()-> new BoardNotFoundException("찾는 보드 없음"));
         //Columns columns=new Columns(request.getColumnName(),user, board);
         Columns columns= Columns.of(request.getColumnName(), user, board);
@@ -37,15 +37,14 @@ public class ColumnService {
       ()->{
           columnRepository.save(columns);
       });
-        return getResponseEntity(ColumnResponse.of(columns), "컬럼 생성 성공");
+        return columns;
     }
 
-    public ResponseEntity<CommonResponse<?>> deleteColumn(Long id, User user) {
+    public void deleteColumn(Long id, User user) {
         Columns columns=columnRepository.findById(id).orElseThrow(()-> new NullPointerException("찾는 컬럼 없음"));
         if(!columns.getUser().getId().equals(user.getId())){
             throw new PermissionDeniedException("실행 권한 없음");
         }
         columnRepository.delete(columns);
-        return getResponseEntity(1, "컬럼 삭제 완료");
     }
 }
