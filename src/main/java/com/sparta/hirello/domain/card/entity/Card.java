@@ -1,5 +1,6 @@
 package com.sparta.hirello.domain.card.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.domain.comment.entity.Comment;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,10 +27,12 @@ public class Card {
     private String description;
 
     @Column
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime deadlineAt;
 
-    @Column
-    private String worker;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worker_id")
+    private User worker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id")
