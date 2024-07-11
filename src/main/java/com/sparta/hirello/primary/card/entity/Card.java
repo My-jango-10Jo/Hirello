@@ -59,4 +59,16 @@ public class Card {
         this.columns = columns;
         this.user = user;
     }
+
+    public static Card of(CreateCardRequest requestDto,
+                          User user, User worker, Columns column) {
+        return Card.builder()
+                .title(requestDto.getTitle())
+                .description(requestDto.getDescription())
+                .deadlineAt(requestDto.getDeadlineAt())
+                .worker(worker)
+                .columns(column)
+                .user(user)
+                .build();
+    }
 }
