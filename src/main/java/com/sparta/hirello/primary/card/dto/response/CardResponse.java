@@ -17,7 +17,6 @@ public class CardResponse {
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-//    private Columns columns;
     private Long columnId;
 
     private CardResponse(Card card) {
