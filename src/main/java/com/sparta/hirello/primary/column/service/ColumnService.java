@@ -3,20 +3,15 @@ package com.sparta.hirello.primary.column.service;
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.board.jpa.BoardRepository;
 import com.sparta.hirello.primary.column.dto.request.ColumnRequest;
-import com.sparta.hirello.primary.column.dto.response.ColumnResponse;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.column.repository.ColumnRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
-import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.exception.BoardNotFoundException;
 import com.sparta.hirello.secondary.exception.ColumnDuplicatedException;
 import com.sparta.hirello.secondary.exception.PermissionDeniedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
 @Service
 @RequiredArgsConstructor
