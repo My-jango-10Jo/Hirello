@@ -2,6 +2,8 @@ package com.sparta.hirello.primary.card.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.comment.entity.Comment;
@@ -64,4 +66,28 @@ public class Card {
         return new Card (requestDto.getTitle(),requestDto.getDescription(), requestDto.getDeadlineAt(),
                 worker, column,user);
     }
+
+    public Card updateCard(CardUpdateRequest request, User worker) {
+
+        this.title = request.getTitle();
+
+        if (request.getDescription() != null) {
+            this.description = request.getDescription();
+        }
+        if (request.getWorkerName() != null) {
+            this.worker = worker;
+        }
+        if (request.getDescription() != null) {
+            this.deadlineAt = request.getDeadlineAt();
+        }
+
+        return this;
+    }
+
+    public Card updateCardColumn(Columns column) {
+        this.columns = column;
+
+        return this;
+    }
+
 }

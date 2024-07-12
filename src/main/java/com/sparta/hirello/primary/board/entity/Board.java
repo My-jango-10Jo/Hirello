@@ -3,17 +3,8 @@ package com.sparta.hirello.primary.board.entity;
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -70,4 +61,14 @@ public class Board {
             throw new IllegalArgumentException("보드 생성자가 아닙니다.");
         }
     }
+
+    public void checkColumn(Long columnId) {
+        boolean columnExist = this.columnsList.stream()
+                .anyMatch(column -> column.getColumnId().equals(columnId));
+
+        if (!columnExist) {
+            throw new EntityNotFoundException("컬럼이 존재하지 않습니다.");
+        }
+    }
+
 }
