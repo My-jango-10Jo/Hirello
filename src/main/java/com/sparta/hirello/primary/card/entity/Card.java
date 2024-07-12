@@ -1,22 +1,18 @@
 package com.sparta.hirello.primary.card.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.comment.entity.Comment;
 import com.sparta.hirello.primary.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,10 +31,12 @@ public class Card {
     private String description;
 
     @Column
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime deadlineAt;
 
-    @Column
-    private String worker;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worker_id")
+    private User worker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id")
@@ -50,4 +48,15 @@ public class Card {
 
     @OneToMany(mappedBy = "card")
     private List<Comment> commentList;
+
+    @Builder
+    public Card(String title, String description, LocalDateTime deadlineAt,
+                User worker, Columns columns, User user) {
+        this.title = title;
+        this.description = description;
+        this.deadlineAt = deadlineAt;
+        this.worker = worker;
+        this.columns = columns;
+        this.user = user;
+    }
 }
