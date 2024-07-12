@@ -7,6 +7,7 @@ import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.comment.entity.Comment;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "cards")
 public class Card {
 
@@ -27,10 +28,8 @@ public class Card {
     @Column(nullable = false)
     private String title;
 
-    @Column
     private String description;
 
-    @Column
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime deadlineAt;
 
@@ -46,11 +45,11 @@ public class Card {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "card")
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList;
 
     @Builder
-    public Card(String title, String description, LocalDateTime deadlineAt,
+    private Card (String title, String description, LocalDateTime deadlineAt,
                 User worker, Columns columns, User user) {
         this.title = title;
         this.description = description;
@@ -58,5 +57,11 @@ public class Card {
         this.worker = worker;
         this.columns = columns;
         this.user = user;
+    }
+
+    public static Card of(CreateCardRequest requestDto,
+                          User user, User worker, Columns column) {
+        return new Card (requestDto.getTitle(),requestDto.getDescription(), requestDto.getDeadlineAt(),
+                worker, column,user);
     }
 }
