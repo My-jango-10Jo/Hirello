@@ -10,20 +10,24 @@ import java.time.LocalDateTime;
 @Data
 public class CardResponse {
 
+    private Long boardId;
+
     private Long cardId;
     private String title;
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-    private Columns columns;
+//    private Columns columns;
+    private Long columnId;
 
     private CardResponse(Card card) {
+        this.boardId = card.getColumns().getBoard().getBoardId();
         this.cardId = card.getCardId();
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadlineAt = card.getDeadlineAt();
         this.workerName = card.getWorker().getUsername();
-        this.columns = card.getColumns();
+        this.columnId = card.getColumns().getColumnId();
     }
 
     public static CardResponse of(Card card) {
