@@ -1,10 +1,11 @@
 package com.sparta.hirello.primary.board.repository;
 
+import static com.sparta.hirello.primary.board.entity.QBoard.board;
+import static com.sparta.hirello.primary.board.entity.QBoardMember.boardMember;
+import static com.sparta.hirello.primary.user.entity.QUser.user;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.hirello.primary.board.entity.BoardMember;
-import com.sparta.hirello.primary.board.entity.QBoard;
-import com.sparta.hirello.primary.board.entity.QBoardMember;
-import com.sparta.hirello.primary.user.entity.QUser;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +17,19 @@ public class BoardMemberRepositoryCustomImpl implements BoardMemberRepositoryCus
 
     @Override
     public List<BoardMember> findByUserId(Long userId) {
-        QBoardMember qBoardMember = QBoardMember.boardMember;
-        QUser qUser = QUser.user;
 
-        return queryFactory.selectFrom(qBoardMember).join(qBoardMember.user, qUser)
-                .where(qBoardMember.user.id.eq(userId)).fetch();
+        return queryFactory.selectFrom(boardMember).join(boardMember.user, user)
+                .where(boardMember.user.id.eq(userId)).fetch();
     }
+
 
     @Override
     public Optional<BoardMember> findByUserIdAndBoardId(Long userId, Long boardId) {
-        QBoardMember qBoardMember = QBoardMember.boardMember;
-        QUser qUser = QUser.user;
-        QBoard qBoard = QBoard.board;
 
-        return Optional.ofNullable(queryFactory.selectFrom(qBoardMember)
-                .join(qBoardMember.user, qUser)
-                .join(qBoardMember.board, qBoard)
-                .where(qBoardMember.user.id.eq(userId))
-                .where(qBoardMember.board.boardId.eq(boardId)).fetchOne());
+        return Optional.ofNullable(queryFactory.selectFrom(boardMember)
+                .join(boardMember.user, user)
+                .join(boardMember.board, board)
+                .where(boardMember.user.id.eq(userId))
+                .where(boardMember.board.boardId.eq(boardId)).fetchOne());
     }
 }

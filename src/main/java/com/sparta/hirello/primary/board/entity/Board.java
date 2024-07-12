@@ -38,10 +38,10 @@ public class Board {
 
     private String headline;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Columns> columnsList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardMember> memberList = new ArrayList<>();
 
     private Board(BoardRequest requestDto, User user) {
@@ -57,5 +57,17 @@ public class Board {
     public void update(String boardName, String headline) {
         this.boardName = boardName;
         this.headline = headline;
+    }
+
+    /**
+     * 보드생성자와 작업 요청한 유저 정보가 맞는지 확인 합니다, 틀리면 Exception
+     *
+     * @param board board에 getUser().getId()의 정보
+     * @param user  요청자의 유저 정보
+     */
+    public void compareUserId(Board board, User user) {
+        if (!user.getId().equals(board.getUser().getId())) {
+            throw new IllegalArgumentException("보드 생성자가 아닙니다.");
+        }
     }
 }

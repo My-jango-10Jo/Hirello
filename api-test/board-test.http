@@ -78,3 +78,13 @@ Authorization: {{Authorization}}
 {
   "userId": 2
 }
+
+### 맴버 권한 변경
+PATCH http://localhost:8080/boards/boardmembers/2
+Content-Type: application/json
+Authorization: {{Authorization}}
+
+{
+  "userId": 2,
+  "boardAuthority": "MANAGER"
+}

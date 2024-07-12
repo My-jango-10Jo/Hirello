@@ -3,10 +3,12 @@ package com.sparta.hirello.primary.board.controller;
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
-import com.sparta.hirello.primary.board.dto.request.BoardUserVisitRequest;
+import com.sparta.hirello.primary.board.dto.request.BoardUserRequest;
+import com.sparta.hirello.primary.board.dto.request.BoardUserRoleRequest;
 import com.sparta.hirello.primary.board.dto.response.BoardResponse;
-import com.sparta.hirello.primary.board.dto.response.BoardUserVisitResponse;
+import com.sparta.hirello.primary.board.dto.response.BoardUserResponse;
 import com.sparta.hirello.primary.board.service.BoardService;
+import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,8 +44,9 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody BoardRequest requestDto
     ) {
-        BoardResponse responseDto = boardService.createBoard(userDetails, requestDto);
-        return getResponseEntity(responseDto, "보드 생성 완료 ");
+        User user = userDetails.getUser();
+        BoardResponse response = boardService.createBoard(user, requestDto);
+        return getResponseEntity(response, "보드 생성 완료 ");
     }
 
     /**
@@ -52,11 +56,12 @@ public class BoardController {
      * @param boardId     클라이언트에서 요청한 보드 생성 정보
      */
     @PostMapping("/{boardId}")
-    public ResponseEntity<CommonResponse<?>> boardUserVisit(
+    public ResponseEntity<CommonResponse<?>> boardUserInvite(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long boardId,
-            @RequestBody BoardUserVisitRequest request) {
-        BoardUserVisitResponse response = boardService.boardUserVisit(userDetails.getUser(),
+            @RequestBody BoardUserRequest request) {
+        User user = userDetails.getUser();
+        BoardUserResponse response = boardService.boardUserInvite(user,
                 boardId, request);
         return getResponseEntity(response, "초대 완료");//미구현
     }
@@ -67,7 +72,8 @@ public class BoardController {
     @GetMapping
     public ResponseEntity<CommonResponse<?>> getBoardList(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<BoardResponse> responseDtos = boardService.getBoardList(userDetails.getUser());
+        User user = userDetails.getUser();
+        List<BoardResponse> responseDtos = boardService.getBoardList(user);
 
         return getResponseEntity(responseDtos, "보드 목록 조회 완료");
     }
@@ -85,7 +91,8 @@ public class BoardController {
             @Valid @RequestBody BoardRequest requestDto,
             @PathVariable Long boardId
     ) {
-        BoardResponse responseDto = boardService.updateBoard(userDetails, requestDto, boardId);
+        User user = userDetails.getUser();
+        BoardResponse responseDto = boardService.updateBoard(user, requestDto, boardId);
 
         return getResponseEntity(responseDto, "보드 수정 완료");
     }
@@ -101,8 +108,28 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long boardId
     ) {
-        boardService.deleteBoard(userDetails, boardId);
+        User user = userDetails.getUser();
+        boardService.deleteBoard(user, boardId);
         return getResponseEntity(1, "보드 삭제 완료");
     }
 
+    /**
+     * 보드 맴버 유저의 권한을 변경 합니다.
+     *
+     * @param userDetails   인가된 유저 정보
+     * @param boardMemberId 삭제 해야할 보드 정보
+     * @param request       변경할 유저의 ID,요청 권한 정보
+     */
+    @PatchMapping("/boardmembers/{boardMemberId}")
+    public ResponseEntity<CommonResponse<?>> updateUserBoardRole(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long boardMemberId,
+            @RequestBody BoardUserRoleRequest request
+    ) {
+        User user = userDetails.getUser();
+
+        BoardUserResponse response = boardService.updateUserBoardRole(user, boardMemberId, request);
+
+        return getResponseEntity(response, "권한 변경 완료");
+    }
 }

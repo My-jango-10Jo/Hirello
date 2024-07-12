@@ -4,17 +4,17 @@ import com.sparta.hirello.primary.user.entity.User;
 import lombok.Data;
 
 @Data
-public class BoardUserVisitResponse {
+public class BoardUserResponse {
 
     private Long userId;
     private String username;
 
-    private BoardUserVisitResponse(User user) {
+    private BoardUserResponse(User user) {
         this.userId = user.getId();
         this.username = user.getUsername();
     }
 
-    public static BoardUserVisitResponse of(User user) {
-        return new BoardUserVisitResponse(user);
+    public static BoardUserResponse of(User user) {
+        return new BoardUserResponse(user);
     }
 }

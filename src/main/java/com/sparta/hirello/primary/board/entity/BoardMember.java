@@ -32,7 +32,7 @@ public class BoardMember {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
-    
+
     @Enumerated(value = EnumType.STRING)
     private BoardAuthority boardAuthority; // [USER, MANAGER]
 
@@ -56,4 +56,7 @@ public class BoardMember {
         return new BoardMember(user, board, boardAuthority);
     }
 
+    public void updateRole(BoardAuthority boardAuthority) {
+        this.boardAuthority = boardAuthority;
+    }
 }

@@ -1,9 +1,10 @@
 package com.sparta.hirello.primary.board.service;
 
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
-import com.sparta.hirello.primary.board.dto.request.BoardUserVisitRequest;
+import com.sparta.hirello.primary.board.dto.request.BoardUserRequest;
+import com.sparta.hirello.primary.board.dto.request.BoardUserRoleRequest;
 import com.sparta.hirello.primary.board.dto.response.BoardResponse;
-import com.sparta.hirello.primary.board.dto.response.BoardUserVisitResponse;
+import com.sparta.hirello.primary.board.dto.response.BoardUserResponse;
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.board.entity.BoardAuthority;
 import com.sparta.hirello.primary.board.entity.BoardMember;
@@ -12,15 +13,15 @@ import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.entity.UserRole;
 import com.sparta.hirello.primary.user.repository.UserRepository;
-import com.sparta.hirello.secondary.security.UserDetailsImpl;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -31,18 +32,17 @@ public class BoardService {
     /**
      * 보드를 생성 합니다.
      *
-     * @param userDetails 인가된 유저 정보
-     * @param requestDto  클라이언트에서 요청한 보드 생성 정보
+     * @param user       인가된 유저 정보
+     * @param requestDto 클라이언트에서 요청한 보드 생성 정보
      */
     @Transactional
     public BoardResponse createBoard(
-            UserDetailsImpl userDetails,
+            User user,
             BoardRequest requestDto
     ) {
-        User user = userDetails.getUser();
+
         Board board = Board.of(requestDto, user);
 
-        //compareUserRole(user);
         boardMemberRepository.save(BoardMember.of(user, board, BoardAuthority.MANAGER));
         boardRepository.save(board);
         return BoardResponse.of(board);
@@ -54,46 +54,37 @@ public class BoardService {
      * @param user 인가된 유저 정보 일단 Admin 권한을 가진 인원만 전체 조회로 구현 TeamEntity 관련 구현이 완료 되면 로직 추가
      */
     public List<BoardResponse> getBoardList(User user) {
-
         List<Board> boards;
-        List<BoardResponse> responseDtos = new ArrayList<>();
         List<BoardMember> boardMemberList = boardMemberRepository.findByUserId(user.getId());
 
         if (user.getRole().equals(UserRole.ADMIN)) {
             boards = boardRepository.findAll();
-            for (Board board : boards) {
-                responseDtos.add(BoardResponse.of(board));
-            }
+            return boards.stream()
+                    .map(BoardResponse::of)
+                    .collect(Collectors.toList());
         } else {
-            for (BoardMember boardMember : boardMemberList) {
-                Board board = boardRepository
-                        .findById(boardMember.getBoard().getBoardId()).orElseThrow(
-                                () -> new IllegalArgumentException("보드가 존재 하지 않습니다.")
-                        );
-                responseDtos.add(BoardResponse.of(board));
-            }
+            return boardMemberList.stream()
+                    .map(boardMember -> getBoardEntity(boardMember.getBoard().getBoardId()))
+                    .map(BoardResponse::of)
+                    .collect(Collectors.toList());
         }
-
-        return responseDtos;
     }
 
     /**
      * 보드 수정
      *
-     * @param userDetails 인가된 유저 정보
-     * @param requestDto  클라이언트에서 요청한 보드 수정 정보
-     * @param boardId     수정 해야할 보드 정보
+     * @param user       인가된 유저 정보
+     * @param requestDto 클라이언트에서 요청한 보드 수정 정보
+     * @param boardId    수정 해야할 보드 정보
      */
     @Transactional
     public BoardResponse updateBoard(
-            UserDetailsImpl userDetails,
+            User user,
             BoardRequest requestDto, Long boardId) {
 
         Board board = getBoardEntity(boardId);
 
-        User user = userDetails.getUser();
-
-        compareUserId(board, user);
+        board.compareUserId(board, user);
 
         String boardName = requestDto.getBoardName();
         String headline = requestDto.getHeadline();
@@ -102,13 +93,71 @@ public class BoardService {
         return BoardResponse.of(board);
     }
 
-    public void deleteBoard(UserDetailsImpl userDetails, Long boardId) {
+    /**
+     * 보드 삭제
+     *
+     * @param user    인가된 유저 정보
+     * @param boardId 삭제 해야할 보드 정보
+     */
+    @Transactional
+    public void deleteBoard(User user, Long boardId) {
         Board board = getBoardEntity(boardId);
-        User user = userDetails.getUser();
 
-        compareUserId(board, user);
+        board.compareUserId(board, user);
 
         boardRepository.delete(board);
+    }
+
+    /**
+     * 보드 맴버 초대
+     *
+     * @param user    인가된 유저 정보
+     * @param boardId 삭제 해야할 보드 정보
+     * @param request 초대 받은 유저 정보
+     */
+    public BoardUserResponse boardUserInvite(User user, Long boardId,
+            BoardUserRequest request) {
+        Board board = getBoardEntity(boardId);
+        BoardMember mangerMember = getMemberEntity(user.getId(), board.getBoardId());
+        compareManger(mangerMember);
+        User visitUser = getUser(request.getUserId());
+
+        boardMemberRepository.save(BoardMember.of(visitUser, board));
+        return BoardUserResponse.of(visitUser);
+    }
+
+    @Transactional
+    public BoardUserResponse updateUserBoardRole(User user, Long boardId,
+            BoardUserRoleRequest request) {
+        User updateuser = getUser(request.getUserId());
+        Board board = getBoardEntity(boardId);
+
+        //변경 진행 해줄 유저 정보
+        BoardMember changesMember = getMemberEntity(user.getId(), board.getBoardId());
+
+        //변경 당하는 유저의 정보
+        BoardMember updateMember = getMemberEntity(updateuser.getId(), board.getBoardId());
+
+        //변경 시킬려고 하는 유저가 매니저 권한이 있는지 확인
+        compareManger(changesMember);
+
+        // 같은 권한으로 변경하는지 확인
+        if (updateMember.getBoardAuthority().equals(request.getBoardAuthority())) {
+            throw new IllegalArgumentException(
+                    "해당 회원의 권한이 이미 " + request.getBoardAuthority() + " 상태입니다.");
+        }
+        updateMember.updateRole(request.getBoardAuthority());
+        return BoardUserResponse.of(updateuser);
+    }
+
+    /**
+     * 유저 정보를 가지고 옵니다 없으면 Exception
+     *
+     * @param userId 유저의 고유 ID
+     */
+    public User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 정보가 없습니다"));
     }
 
     /**
@@ -123,42 +172,26 @@ public class BoardService {
     }
 
     /**
-     * 보드생성자와 작업 요청한 유저 정보가 맞는지 확인 합니다, 틀리면 Exception
+     * 맴버 정보를 가지고 옵니다, 없으면 Exception
      *
-     * @param board board에 getUser().getId()의 정보
-     * @param user  요청자의 유저 정보
+     * @param boardId 인가된 유저 정보
      */
-    public void compareUserId(Board board, User user) {
-        if (!user.getId().equals(board.getUser().getId())) {
-            throw new IllegalArgumentException("보드 생성자가 아닙니다.");
-        }
+    public BoardMember getMemberEntity(Long userId, Long boardId) {
+        return boardMemberRepository.findByUserIdAndBoardId(userId
+                , boardId).orElseThrow(
+                () -> new IllegalArgumentException("맴버에 존재 하지 않는 유저 입니다.")
+        );
     }
 
     /**
-     * 유저의 권한 정보가 매니저 인지 확인,매니저가 아니면 Exception
+     * 맴버 정보를 가지고 옵니다, 없으면 Exception
      *
-     * @param user 요청자의 유저 정보
+     * @param boardMember 보드 맴버 정보
      */
-    public void compareUserRole(User user) {
-        if (!user.getRole().equals(UserRole.ADMIN)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+    public void compareManger(BoardMember boardMember) {
+        if (!boardMember.getBoardAuthority().equals(BoardAuthority.MANAGER)) {
+            throw new IllegalArgumentException("매니저만 작업할수 있습니다.");
         }
-    }
-
-    public BoardUserVisitResponse boardUserVisit(User user, Long boardId,
-            BoardUserVisitRequest request) {
-        Board board = getBoardEntity(boardId);
-        BoardMember mangerMember = boardMemberRepository.findByUserIdAndBoardId(user.getId(),
-                board.getBoardId()).orElseThrow(() -> new IllegalArgumentException("없는 맴버 입니다."));
-
-        if (!mangerMember.getBoardAuthority().equals(BoardAuthority.MANAGER)) {
-            throw new IllegalArgumentException("초대 권한이 없습니다.");
-        }
-
-        User visitUser = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
-
-        boardMemberRepository.save(BoardMember.of(visitUser, board));
-        return BoardUserVisitResponse.of(visitUser);
     }
 }
+
