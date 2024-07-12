@@ -16,6 +16,13 @@ public final class ControllerUtil {
                 .build());
     }
 
+    public static ResponseEntity<CommonResponse<?>> getResponseEntity(String msg) {
+        return ResponseEntity.ok().body(CommonResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .msg(msg)
+                .build());
+    }
+
     public static void verifyPathIdWithBody(Long pathId, Long bodyId) {
         if (!pathId.equals(bodyId)) {
             throw new IllegalArgumentException("PathVariable의 Id가 RequestBody의 Id와 일치하지 않습니다.");
