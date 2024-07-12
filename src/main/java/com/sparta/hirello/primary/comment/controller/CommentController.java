@@ -1,52 +1,51 @@
 package com.sparta.hirello.primary.comment.controller;
 
 import com.sparta.hirello.primary.comment.dto.CommentRequest;
+import com.sparta.hirello.primary.comment.dto.CommentResponse;
+import com.sparta.hirello.primary.comment.entity.Comment;
 import com.sparta.hirello.primary.comment.service.CommentService;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
-@RequiredArgsConstructor
-@RequestMapping("/cards/{cardId}/comments")
+import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
+
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping()
-    public CommonResponse createComment(@PathVariable Long id,
-                                        @RequestBody CommentRequest request,
-                                        UserDetailsImpl userDetails) {
-        commentService.createComment(id,request,userDetails.getUser());
+    @PostMapping
+    public ResponseEntity<CommonResponse<?>> createComment(
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        return CommonResponse.builder()
-                .statusCode(201)
-                .build();
+        Comment comment = commentService.createComment(request, userDetails.getUser());
+        return getResponseEntity(CommentResponse.of(comment), "댓글 작성 성공");
     }
 
     @PatchMapping("/{commentId}")
-    public CommonResponse updateComment(@PathVariable Long cardId,
-                                        @PathVariable Long commentId,
-                                        @RequestBody CommentRequest request,
-                                        UserDetailsImpl userDetails) {
-        commentService.updateComment(cardId,commentId,request,userDetails.getUser());
+    public ResponseEntity<CommonResponse<?>> updateComment(
+            @PathVariable Long commentId,
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        return CommonResponse.builder()
-                .statusCode(204)
-                .build();
+        Comment comment = commentService.updateComment(commentId, request, userDetails.getUser());
+        return getResponseEntity(CommentResponse.of(comment), "댓글 수정 성공");
     }
 
     @DeleteMapping("/{commentId}")
-    public CommonResponse deleteComment(@PathVariable Long commentId){
-        commentService.deleteComment(commentId);
+    public ResponseEntity<CommonResponse<?>> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-
-        return CommonResponse.builder()
-                .statusCode(204)
-                .build();
+        Long response = commentService.deleteComment(commentId, userDetails.getUser());
+        return getResponseEntity(response, "댓글 삭제 성공");
     }
 
 }
