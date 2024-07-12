@@ -1,9 +1,11 @@
 package com.sparta.hirello.primary.board.entity;
 
+import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
