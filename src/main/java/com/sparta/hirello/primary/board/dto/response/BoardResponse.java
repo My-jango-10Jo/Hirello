@@ -6,16 +6,16 @@ import lombok.Data;
 @Data
 public class BoardResponse {
 
-    private final Long boardId;
-    private final String boardName;
-    private final String headline;
-    private final Long userId;
-    private final String username;
+    private Long boardId;
+    private String boardName;
+    private String description;
+    private Long userId; // 보드 생성자 id
+    private String username; // 보드 생성자 username
 
     private BoardResponse(Board board) {
-        this.boardId = board.getBoardId();
-        this.boardName = board.getBoardName();
-        this.headline = board.getHeadline();
+        this.boardId = board.getId();
+        this.boardName = board.getName();
+        this.description = board.getDescription();
         this.userId = board.getUser().getId();
         this.username = board.getUser().getUsername();
     }
