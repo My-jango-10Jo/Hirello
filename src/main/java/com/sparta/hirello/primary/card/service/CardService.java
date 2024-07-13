@@ -4,7 +4,10 @@ import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
-import com.sparta.hirello.primary.card.dto.request.*;
+import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
+import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.repository.CardRepository;
 import com.sparta.hirello.primary.column.entity.Columns;
@@ -49,12 +52,12 @@ public class CardService {
         return getBoard(boardId,loginUser.getUsername());
     }
 
-    public List<Card> getCardOfSpecificWorker(User loginUser, CardOfSpecificWorkerRequest request) {
+    public List<Card> getCardOfSpecificWorker(User loginUser,Long boardId, Long workerId) {
 
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
+        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), request.getWorkerId());
+        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), workerId);
 
         List<Card> CardListOfSpecificWorker = cardRepository.findCardByWorkerId(worker.getId());
         if (CardListOfSpecificWorker.isEmpty()) {
@@ -63,11 +66,11 @@ public class CardService {
         return CardListOfSpecificWorker;
     }
 
-    public List<Card> getCardOfColumn(User loginUser, CardOfColumnRequest request) {
+    public List<Card> getCardOfColumn(User loginUser, Long boardId, Long columnId) {
 
         //board 존재 확인 및 추출
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        Columns existColumn = existColumn(basicCheckedBoard, request.getColumnId());
+        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
+        Columns existColumn = existColumn(basicCheckedBoard, columnId);
 
         List<Card> cardListOfColumn = cardRepository.findCardByColumnsColumnId(existColumn.getColumnId());
         if (cardListOfColumn.isEmpty()) {

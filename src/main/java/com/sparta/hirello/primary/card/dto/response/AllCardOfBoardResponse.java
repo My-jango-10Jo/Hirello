@@ -23,6 +23,7 @@ public class AllCardOfBoardResponse {
     private LocalDateTime deadlineAt;
     private String workerName;
     private Columns columns;
+    private Long columnId;
 
     private final List<CardResponse> cardOfBoardList;
 

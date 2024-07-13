@@ -1,7 +1,5 @@
 package com.sparta.hirello.primary.board.controller;
 
-import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
-
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.board.dto.request.BoardUserRequest;
 import com.sparta.hirello.primary.board.dto.request.BoardUserRoleRequest;
@@ -12,19 +10,14 @@ import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
 @RestController
 @RequestMapping("/boards")

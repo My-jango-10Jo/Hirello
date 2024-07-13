@@ -1,11 +1,8 @@
 package com.sparta.hirello.secondary.aop;
 
 import com.sparta.hirello.secondary.base.dto.ExceptionResponse;
-import lombok.Builder;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
