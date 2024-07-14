@@ -1,5 +1,6 @@
 package com.sparta.hirello.primary.board.controller;
 
+
 import com.sparta.hirello.primary.board.dto.request.BoardMemberRequest;
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.board.dto.response.BoardMemberResponse;
@@ -72,8 +73,9 @@ public class BoardController {
             @PathVariable Long boardId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long response = boardService.deleteBoard(boardId, userDetails.getUser());
-        return getResponseEntity(response, "보드 삭제 성공");
+        //Long response = boardService.deleteBoard(boardId, userDetails.getUser());
+        boardService.deleteBoard(boardId, userDetails.getUser());
+        return getResponseEntity(boardId, "보드 삭제 성공");
     }
 
     /**

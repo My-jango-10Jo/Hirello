@@ -3,8 +3,8 @@ package com.sparta.hirello.primary.card.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
-import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.comment.entity.Comment;
+import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,7 +23,7 @@ public class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cardId;
+    private Long id;
 
     private Long orderNumber;
 
@@ -40,8 +40,8 @@ public class Card {
     private User worker;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "column_id")
-    private Columns columns;
+    @JoinColumn(name = "progress_id")
+    private Progress progress;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -52,21 +52,20 @@ public class Card {
 
     @Builder
     private Card (String title, String description, LocalDateTime deadlineAt,
-                User worker, Columns columns, User user) {
+                  User worker, Progress progress, User user) {
         this.title = title;
         this.description = description;
         this.deadlineAt = deadlineAt;
         this.worker = worker;
-        this.columns = columns;
+        this.progress = progress;
         this.user = user;
     }
 
     public static Card of(CreateCardRequest requestDto,
-                          User user, User worker, Columns column) {
+                          User user, User worker, Progress progress) {
         return new Card (requestDto.getTitle(),requestDto.getDescription(), requestDto.getDeadlineAt(),
-                worker, column,user);
+                worker, progress,user);
     }
-
     public Card updateCard(CardUpdateRequest request, User worker) {
 
         this.title = request.getTitle();
@@ -84,10 +83,9 @@ public class Card {
         return this;
     }
 
-    public Card updateCardColumn(Columns column) {
-        this.columns = column;
+    public Card updateCardProgress(Progress progress) {
+        this.progress = progress;
 
         return this;
     }
-
 }

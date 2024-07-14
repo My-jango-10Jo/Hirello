@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class CardOfColumnResponse {
+public class CardOfProgressResponse {
 
     private Long boardId;
 
@@ -23,11 +23,11 @@ public class CardOfColumnResponse {
     private final List<CardResponse> cardOfColumnList;
 
 
-    public static CardOfColumnResponse of(List<Card> checkedCardList) {
+    public static CardOfProgressResponse of(List<Card> checkedCardList) {
         List<CardResponse> cardOfColumnList = checkedCardList.stream()
                 .map(CardResponse::of).toList();
 
-        return CardOfColumnResponse.builder()
+        return CardOfProgressResponse.builder()
                 .cardOfColumnList(cardOfColumnList)
                 .build();
     }

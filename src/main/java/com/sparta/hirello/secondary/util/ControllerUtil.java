@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 @Slf4j
 public final class ControllerUtil {
 
-    public static ResponseEntity<CommonResponse<?>> getResponseEntity(Object response, String msg) {
+    public static ResponseEntity<CommonResponse<?>>                                                           getResponseEntity(Object response, String msg) {
         return ResponseEntity.ok().body(CommonResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .msg(msg)

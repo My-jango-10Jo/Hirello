@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,10 +70,25 @@ public class BoardService {
     /**
      * 보드 삭제
      */
+/**
+ * 아래 주석한 메서드는 순모님이 작성하셨던 메서드 입니다
+ * Long으로 반환 타입 선언하셨는데 막상 return문이 없어서 void로 수정 했습니다
+ * 솔직히 삭제하는데 반환할게 딱히 없다고 생각해서 void로 수정했지만 나중에 확인하시고 수정 필요하시면 수정 부탁드립니다
+* */
+//    @Transactional
+//    public Long deleteBoard(Long boardId, User user) {
+//        Board board = getBoardAndVerifyManager(boardId, user);
+//        boardRepository.delete(board);
+//
+//    }
+
+
+//이건 제가 수정한거
     @Transactional
-    public Long deleteBoard(Long boardId, User user) {
+    public void deleteBoard(Long boardId, User user) {
         Board board = getBoardAndVerifyManager(boardId, user);
         boardRepository.delete(board);
+
     }
 
     /**
@@ -108,15 +121,18 @@ public class BoardService {
         return boardMember;
     }
 
+    //에러가 생겨서 exception 부분만 임의로 생성했습니다
+    //116번째줄 확인하시고 수정 필요하시면 수정 부탁드려요
     private Board getBoardAndVerifyManager(Long boardId, User user) {
         Board board = getBoard(boardId);
         BoardMember member = getBoardMember(board, user);
         if (!member.getBoardRole().equals(BoardRole.MANAGER)) {
-            throw new NotBoardManagerException();
+            throw new NotBoardManagerException("이 보드의 매니저가 아닙니다");
         }
         return board;
     }
 
+    //여기도 에러가 생겨서 임의로 exception 생성했습니다
     private BoardMember getBoardMember(Board board, User user) {
         return boardMemberRepository.findByBoardAndUser(board, user)
                 .orElseThrow(UninvitedBoardMemberException::new);

@@ -2,7 +2,7 @@ package com.sparta.hirello.primary.card.controller;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
-import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyProgressRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.dto.response.*;
@@ -68,7 +68,7 @@ public class CardController {
 
         if (columnId == null) {
             List<Card> checkedCardList = cardService.getCardOfSpecificWorker(userDetails.getUser(), boardId, workerId);
-            return getResponseEntity(CardOfColumnResponse.of(checkedCardList), "조회 성공");
+            return getResponseEntity(CardOfProgressResponse.of(checkedCardList), "조회 성공");
         }
 
         if (workerId == null) {
@@ -114,9 +114,9 @@ public class CardController {
     public ResponseEntity<CommonResponse<?>> updateCardColumn(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long cardId,
-            @Valid @RequestBody final CardUpdateOnlyColumnRequest request
+            @Valid @RequestBody final CardUpdateOnlyProgressRequest request
     ) {
-        Card updatedCard = cardService.updateCardColumn(userDetails.getUser(), cardId, request);
+        Card updatedCard = cardService.updateCardProgress(userDetails.getUser(), cardId, request);
         return getResponseEntity(CardUpdateResponse.of(updatedCard), "수정 성공");
     }
 

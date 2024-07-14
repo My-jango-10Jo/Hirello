@@ -26,6 +26,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            cursor: grab;
         }
         .kanban-column h2 {
             text-align: center;
@@ -57,102 +58,51 @@
             cursor: pointer;
             align-self: flex-end;
         }
-        .login-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 800px;
-        }
-        .login-form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .login-form input {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .login-form button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .logout-btn {
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
 
-<div class="login-container">
-    <div class="login-form" id="login-form">
-        <input type="text" id="username" placeholder="Enter username">
-        <input type="password" id="password" placeholder="Enter password">
-        <button onclick="login()">Login</button>
-    </div>
-    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logout()">Logout</button>
-</div>
-
-<div class="kanban-board" id="kanban-board">
-    <div class="kanban-column" id="todo-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+<div class="kanban-board" id="kanban-board" ondrop="dropColumn(event)" ondragover="allowDrop(event)">
+    <div class="kanban-column" id="todo-column" draggable="true" ondragstart="dragColumn(event)">
         <h2>To Do</h2>
-        <div class="kanban-cards" id="todo-cards">
-            <div class="kanban-card" id="task1" draggable="true" ondragstart="drag(event)">Task 1</div>
-            <div class="kanban-card" id="task2" draggable="true" ondragstart="drag(event)">Task 2</div>
+        <div class="kanban-cards" id="todo-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)">
+            <div class="kanban-card" id="task1" draggable="true" ondragstart="dragCard(event)">Task 1</div>
+            <div class="kanban-card" id="task2" draggable="true" ondragstart="dragCard(event)">Task 2</div>
         </div>
         <button class="add-card-btn" onclick="addCard('todo-column')">Add Card</button>
     </div>
-    <div class="kanban-column" id="in-progress-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="kanban-column" id="in-progress-column" draggable="true" ondragstart="dragColumn(event)">
         <h2>In Progress</h2>
-        <div class="kanban-cards" id="in-progress-cards"></div>
+        <div class="kanban-cards" id="in-progress-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
         <button class="add-card-btn" onclick="addCard('in-progress-column')">Add Card</button>
     </div>
-    <div class="kanban-column" id="done-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="kanban-column" id="done-column" draggable="true" ondragstart="dragColumn(event)">
         <h2>Done</h2>
-        <div class="kanban-cards" id="done-cards"></div>
+        <div class="kanban-cards" id="done-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
         <button class="add-card-btn" onclick="addCard('done-column')">Add Card</button>
     </div>
 </div>
 
 <script>
-    // Drag and Drop Functions
+    // Drag and Drop Functions for Cards
     function allowDrop(event) {
         event.preventDefault();
     }
 
-    function drag(event) {
+    function dragCard(event) {
         event.dataTransfer.setData("text", event.target.id);
     }
 
-    function drop(event) {
+    function dropCard(event) {
         event.preventDefault();
         const data = event.dataTransfer.getData("text");
         const card = document.getElementById(data);
-        let targetColumn;
+        const targetColumn = event.target.closest('.kanban-cards');
 
-        if (event.target.classList.contains("kanban-cards")) {
-            event.target.appendChild(card);
-            targetColumn = event.target.parentElement;
-        } else if (event.target.classList.contains("kanban-column")) {
-            event.target.querySelector('.kanban-cards').appendChild(card);
-            targetColumn = event.target;
-        } else if (event.target.classList.contains("kanban-card")) {
-            event.target.parentElement.insertBefore(card, event.target.nextSibling);
-            targetColumn = event.target.parentElement.parentElement;
+        if (targetColumn) {
+            targetColumn.appendChild(card);
+            saveCardOrder();
         }
-
-        const cardName = card.textContent.trim();
-        const columnName = targetColumn.querySelector('h2').textContent.trim();
-        alert(`${cardName}을(를) ${columnName}으로 옮겼습니다!`);
     }
 
     function addCard(columnId) {
@@ -163,42 +113,81 @@
             newCard.className = 'kanban-card';
             newCard.textContent = cardText;
             newCard.setAttribute('draggable', 'true');
-            newCard.setAttribute('ondragstart', 'drag(event)');
+            newCard.setAttribute('ondragstart', 'dragCard(event)');
             newCard.id = 'card-' + Date.now();
             column.querySelector('.kanban-cards').appendChild(newCard);
+            saveCardOrder();
         }
     }
 
-    // Login/Logout Functions
-    function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        if (username === 'user' && password === 'pass') {
-            localStorage.setItem('loggedIn', 'true');
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'block';
-        } else {
-            alert('Invalid credentials');
+    // Drag and Drop Functions for Columns
+    function dragColumn(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
+
+    function dropColumn(event) {
+        event.preventDefault();
+        const data = event.dataTransfer.getData("text");
+        const column = document.getElementById(data);
+        const board = document.getElementById('kanban-board');
+        const targetColumn = event.target.closest('.kanban-column');
+
+        if (targetColumn && column !== targetColumn) {
+            const progress = Array.from(board.children);
+            const targetIndex = progress.indexOf(targetColumn);
+
+            board.insertBefore(column, targetIndex > 0 ? progress[targetIndex + 1] : targetColumn);
+            saveColumnOrder();
         }
     }
 
-    function logout() {
-        localStorage.removeItem('loggedIn');
-        document.getElementById('login-form').style.display = 'flex';
-        document.getElementById('logout-btn').style.display = 'none';
+    // Save Card Order to Backend
+    function saveCardOrder() {
+        const progress = document.querySelectorAll('.kanban-column');
+        const cardOrder = {};
+
+        progress.forEach(column => {
+            const cards = Array.from(column.querySelector('.kanban-cards').children);
+            cardOrder[column.id] = cards.map(card => card.id);
+        });
+
+        fetch('/api/saveCardOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cardOrder }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Card order saved:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
 
-    // Check Login Status on Page Load
-    window.onload = function() {
-        if (localStorage.getItem('loggedIn') === 'true') {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'block';
-        } else {
-            document.getElementById('login-form').style.display = 'flex';
-            document.getElementById('logout-btn').style.display = 'none';
-        }
+    // Save Column Order to Backend
+    function saveColumnOrder() {
+        const board = document.getElementById('kanban-board');
+        const progress = Array.from(board.children);
+        const columnOrder = progress.map(column => column.id);
+
+        fetch('/api/saveColumnOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ columnOrder }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Column order saved:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
 </script>
-
 </body>
 </html>
