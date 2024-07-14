@@ -18,7 +18,7 @@ public class CardOfSpecificWorkerResponse {
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-    private Long columnId;
+    private Long progressId;
 
     private final List<CardResponse> cardOfWorkerList;
 

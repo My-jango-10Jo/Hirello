@@ -78,17 +78,17 @@ public class CardService {
     /**
      * 특정 Column 의 모든 Card 조회
      */
-    public List<Card> getCardOfColumn(User loginUser, Long boardId, Long columnId) {
+    public List<Card> getCardOfProgress(User loginUser, Long boardId, Long progressId) {
 
         //board 존재 확인 및 추출
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
-        Progress existProgress = existProgress(basicCheckedBoard, columnId);
+        Progress existProgress = existProgress(basicCheckedBoard, progressId);
 
-        List<Card> cardListOfColumn = cardRepository.findByProgressId(existProgress.getId());
-        if (cardListOfColumn.isEmpty()) {
+        List<Card> cardListOfProgress = cardRepository.findByProgressId(existProgress.getId());
+        if (cardListOfProgress.isEmpty()) {
             throw new EntityNotFoundException("컬럼이 비어있습니다.");
         }
-        return cardListOfColumn;
+        return cardListOfProgress;
     }
 
     /**

@@ -11,7 +11,7 @@ public class CardUpdateResponse {
     String title;
     String description;
     String workerName;
-    String columnName;
+    String progressName;
     LocalDateTime deadlineAt;
 
     private CardUpdateResponse(Card card) {
@@ -20,7 +20,7 @@ public class CardUpdateResponse {
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.workerName = card.getWorker().getUsername();
-        this.columnName = card.getProgress().getProgressName();
+        this.progressName = card.getProgress().getProgressName();
         this.deadlineAt = card.getDeadlineAt();
 
     }

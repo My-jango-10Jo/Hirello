@@ -20,15 +20,15 @@ public class CardOfProgressResponse {
     private String workerName;
     private Long columId;
 
-    private final List<CardResponse> cardOfColumnList;
+    private final List<CardResponse> cardOfProgressList;
 
 
     public static CardOfProgressResponse of(List<Card> checkedCardList) {
-        List<CardResponse> cardOfColumnList = checkedCardList.stream()
+        List<CardResponse> cardOfProgressList = checkedCardList.stream()
                 .map(CardResponse::of).toList();
 
         return CardOfProgressResponse.builder()
-                .cardOfColumnList(cardOfColumnList)
+                .cardOfProgressList(cardOfProgressList)
                 .build();
     }
 }

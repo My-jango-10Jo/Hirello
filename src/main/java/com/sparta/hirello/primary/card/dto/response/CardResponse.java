@@ -14,7 +14,7 @@ public class CardResponse {
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-    private Long columnId;
+    private Long progressId;
 
     private CardResponse(Card card) {
         this.boardId = card.getProgress().getBoard().getId();
@@ -23,7 +23,7 @@ public class CardResponse {
         this.description = card.getDescription();
         this.deadlineAt = card.getDeadlineAt();
         this.workerName = card.getWorker().getUsername();
-        this.columnId = card.getProgress().getId();
+        this.progressId = card.getProgress().getId();
     }
 
     public static CardResponse of(Card card) {

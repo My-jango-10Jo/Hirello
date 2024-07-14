@@ -31,7 +31,7 @@ public class AllCardOfBoardResponse {
 
         List<CardResponse> cardResponseList =
                 board.getProgressList().stream()
-                .flatMap(columns -> columns.getCardList().stream())
+                .flatMap(progress -> progress.getCardList().stream())
                 .map(CardResponse::of)
                 .collect(Collectors.toList());
 

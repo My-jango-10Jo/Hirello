@@ -59,20 +59,20 @@ public class CardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = true) Long boardId,
             @RequestParam(required = false) Long workerId,
-            @RequestParam(required = false) Long columnId
+            @RequestParam(required = false) Long progressId
     ) {
-        if (columnId == null && workerId == null) {
+        if (progressId == null && workerId == null) {
             Board checkedBoard = cardService.getAllCardOfBoard(userDetails.getUser(), boardId);
             return getResponseEntity(AllCardOfBoardResponse.of(checkedBoard), "조회 성공");
         }
 
-        if (columnId == null) {
+        if (progressId == null) {
             List<Card> checkedCardList = cardService.getCardOfSpecificWorker(userDetails.getUser(), boardId, workerId);
             return getResponseEntity(CardOfProgressResponse.of(checkedCardList), "조회 성공");
         }
 
         if (workerId == null) {
-            List<Card> checkedCardList = cardService.getCardOfColumn(userDetails.getUser(), boardId, columnId);
+            List<Card> checkedCardList = cardService.getCardOfProgress(userDetails.getUser(), boardId, progressId);
             return getResponseEntity(CardOfSpecificWorkerResponse.of(checkedCardList), "조회 성공");
         }
 
@@ -111,7 +111,7 @@ public class CardController {
      * @param request
      */
     @PatchMapping("/cloumn/{cardId}")
-    public ResponseEntity<CommonResponse<?>> updateCardColumn(
+    public ResponseEntity<CommonResponse<?>> updateCardProgress(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long cardId,
             @Valid @RequestBody final CardUpdateOnlyProgressRequest request
