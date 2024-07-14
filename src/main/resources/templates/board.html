@@ -17,7 +17,7 @@
             gap: 10px;
             margin-top: 20px;
         }
-        .kanban-column {
+        .kanban-progress {
             background: #f0f0f0;
             border-radius: 5px;
             padding: 10px;
@@ -28,7 +28,7 @@
             justify-content: flex-start;
             cursor: grab;
         }
-        .kanban-column h2 {
+        .kanban-progress h2 {
             text-align: center;
             color: #333;
         }
@@ -62,24 +62,24 @@
 </head>
 <body>
 
-<div class="kanban-board" id="kanban-board" ondrop="dropColumn(event)" ondragover="allowDrop(event)">
-    <div class="kanban-column" id="todo-column" draggable="true" ondragstart="dragColumn(event)">
+<div class="kanban-board" id="kanban-board" ondrop="dropProgress(event)" ondragover="allowDrop(event)">
+    <div class="kanban-progress" id="todo-progress" draggable="true" ondragstart="dragProgress(event)">
         <h2>To Do</h2>
         <div class="kanban-cards" id="todo-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)">
             <div class="kanban-card" id="task1" draggable="true" ondragstart="dragCard(event)">Task 1</div>
             <div class="kanban-card" id="task2" draggable="true" ondragstart="dragCard(event)">Task 2</div>
         </div>
-        <button class="add-card-btn" onclick="addCard('todo-column')">Add Card</button>
+        <button class="add-card-btn" onclick="addCard('todo-progress')">Add Card</button>
     </div>
-    <div class="kanban-column" id="in-progress-column" draggable="true" ondragstart="dragColumn(event)">
+    <div class="kanban-progress" id="in-progress-progress" draggable="true" ondragstart="dragProgress(event)">
         <h2>In Progress</h2>
         <div class="kanban-cards" id="in-progress-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
-        <button class="add-card-btn" onclick="addCard('in-progress-column')">Add Card</button>
+        <button class="add-card-btn" onclick="addCard('in-progress-progress')">Add Card</button>
     </div>
-    <div class="kanban-column" id="done-column" draggable="true" ondragstart="dragColumn(event)">
+    <div class="kanban-progress" id="done-progress" draggable="true" ondragstart="dragProgress(event)">
         <h2>Done</h2>
         <div class="kanban-cards" id="done-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
-        <button class="add-card-btn" onclick="addCard('done-column')">Add Card</button>
+        <button class="add-card-btn" onclick="addCard('done-progress')">Add Card</button>
     </div>
 </div>
 
@@ -97,58 +97,58 @@
         event.preventDefault();
         const data = event.dataTransfer.getData("text");
         const card = document.getElementById(data);
-        const targetColumn = event.target.closest('.kanban-cards');
+        const targetProgress = event.target.closest('.kanban-cards');
 
-        if (targetColumn) {
-            targetColumn.appendChild(card);
+        if (targetProgress) {
+            targetProgress.appendChild(card);
             saveCardOrder();
         }
     }
 
-    function addCard(columnId) {
+    function addCard(progressId) {
         const cardText = prompt('Enter card text:');
         if (cardText) {
-            const column = document.getElementById(columnId);
+            const progress = document.getElementById(progressId);
             const newCard = document.createElement('div');
             newCard.className = 'kanban-card';
             newCard.textContent = cardText;
             newCard.setAttribute('draggable', 'true');
             newCard.setAttribute('ondragstart', 'dragCard(event)');
             newCard.id = 'card-' + Date.now();
-            column.querySelector('.kanban-cards').appendChild(newCard);
+            progress.querySelector('.kanban-cards').appendChild(newCard);
             saveCardOrder();
         }
     }
 
-    // Drag and Drop Functions for Columns
-    function dragColumn(event) {
+    // Drag and Drop Functions for Progress
+    function dragProgress(event) {
         event.dataTransfer.setData("text", event.target.id);
     }
 
-    function dropColumn(event) {
+    function dropProgress(event) {
         event.preventDefault();
         const data = event.dataTransfer.getData("text");
-        const column = document.getElementById(data);
+        const progress = document.getElementById(data);
         const board = document.getElementById('kanban-board');
-        const targetColumn = event.target.closest('.kanban-column');
+        const targetProgress = event.target.closest('.kanban-progress');
 
-        if (targetColumn && column !== targetColumn) {
+        if (targetProgress && progress !== targetProgress) {
             const progress = Array.from(board.children);
-            const targetIndex = progress.indexOf(targetColumn);
+            const targetIndex = progress.indexOf(targetProgress);
 
-            board.insertBefore(column, targetIndex > 0 ? progress[targetIndex + 1] : targetColumn);
-            saveColumnOrder();
+            board.insertBefore(progress, targetIndex > 0 ? progress[targetIndex + 1] : targetProgress);
+            saveProgressOrder();
         }
     }
 
     // Save Card Order to Backend
     function saveCardOrder() {
-        const progress = document.querySelectorAll('.kanban-column');
+        const progress = document.querySelectorAll('.kanban-progress');
         const cardOrder = {};
 
-        progress.forEach(column => {
-            const cards = Array.from(column.querySelector('.kanban-cards').children);
-            cardOrder[column.id] = cards.map(card => card.id);
+        progress.forEach(progress => {
+            const cards = Array.from(progress.querySelector('.kanban-cards').children);
+            cardOrder[progress.id] = cards.map(card => card.id);
         });
 
         fetch('/api/saveCardOrder', {
@@ -167,22 +167,22 @@
             });
     }
 
-    // Save Column Order to Backend
-    function saveColumnOrder() {
+    // Save progress Order to Backend
+    function saveProgressOrder() {
         const board = document.getElementById('kanban-board');
         const progress = Array.from(board.children);
-        const columnOrder = progress.map(column => column.id);
+        const progressOrder = progress.map(progress => progress.id);
 
-        fetch('/api/saveColumnOrder', {
+        fetch('/api/saveProgressOrder', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ columnOrder }),
+            body: JSON.stringify({ progressOrder }),
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Column order saved:', data);
+                console.log('Progress order saved:', data);
             })
             .catch((error) => {
                 console.error('Error:', error);
