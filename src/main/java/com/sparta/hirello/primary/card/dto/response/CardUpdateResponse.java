@@ -15,12 +15,12 @@ public class CardUpdateResponse {
     LocalDateTime deadlineAt;
 
     private CardUpdateResponse(Card card) {
-        this.boardId = card.getColumns().getBoard().getBoardId();
+        this.boardId = card.getProgress().getBoard().getId();
 
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.workerName = card.getWorker().getUsername();
-        this.columnName = card.getColumns().getColumnName();
+        this.columnName = card.getProgress().getProgressName();
         this.deadlineAt = card.getDeadlineAt();
 
     }

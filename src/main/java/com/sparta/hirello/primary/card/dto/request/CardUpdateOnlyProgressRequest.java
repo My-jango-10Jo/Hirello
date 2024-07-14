@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class CardUpdateOnlyColumnRequest {
+public class CardUpdateOnlyProgressRequest {
 
     @NotNull
     Long boardId;
 
     @NotNull
-    Long columnId;
+    Long progressId;
 }

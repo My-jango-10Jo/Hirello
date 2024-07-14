@@ -52,7 +52,7 @@ public class Comment extends Timestamped {
     }
 
     public void verifyCard(Long cardId) {
-        if (!cardId.equals(this.card.getCardId())) {
+        if (!cardId.equals(this.card.getId())) {
             throw new DifferentCardException("해당 카드의 댓글이 아닙니다.");
         }
     }
