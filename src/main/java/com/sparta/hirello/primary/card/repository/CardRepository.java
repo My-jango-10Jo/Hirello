@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
 
-    List<Card> findCardByWorkerId(Long id);
+    List<Card> findByWorkerId(Long id);
 
+    List<Card> findByProgressId(Long progressId);
     List<Card> findCardByProgressProgressId(Long progressId);
 }

@@ -61,14 +61,14 @@ public class CardService {
     /**
      * 특정 Worker 의 모든 Card 조회
      */
-    public List<Card> getCardOfSpecificWorker(User loginUser,Long boardId, Long workerId) {
+    public List<Card> getCardOfSpecificWorker(User loginUser, Long boardId, Long workerId) {
 
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
         User worker = getInvitedUser(basicCheckedBoard.getId(), workerId);
 
-        List<Card> CardListOfSpecificWorker = cardRepository.findCardByWorkerId(worker.getId());
+        List<Card> CardListOfSpecificWorker = cardRepository.findByWorkerId(worker.getId());
         if (CardListOfSpecificWorker.isEmpty()) {
             throw new EntityNotFoundException("작업자에게 할당된 카드가 없습니다.");
         }
@@ -84,8 +84,8 @@ public class CardService {
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
         Progress existProgress = existProgress(basicCheckedBoard, progressId);
 
-        List<Card> cardListOfProgress = cardRepository.findCardByProgressProgressId(existProgress.getId());
-        if (cardListOfProgress.isEmpty()) {
+        List<Card> cardListOfColumn = cardRepository.findByProgressId(existProgress.getId());
+        if (cardListOfColumn.isEmpty()) {
             throw new EntityNotFoundException("컬럼이 비어있습니다.");
         }
         return cardListOfProgress;
@@ -132,7 +132,7 @@ public class CardService {
         );
 
         //카드끼리의 위치 정하기 로직
-        
+
 
         Card updatedCard = targetCard.updateCardProgress(existProgress);
 
@@ -152,8 +152,6 @@ public class CardService {
         Card targetCard = cardRepository.findById(cardId).orElseThrow(
                 () -> new EntityNotFoundException("이미 삭제된 카드입니다.")
         );
-
-        //redirect 해서 확인 받기? // 또는 delete 까지는 진행하지 말고 끝낸 다음 Controller 에서 Controller 를 호출하게 만들기?
         cardRepository.delete(targetCard);
     }
 

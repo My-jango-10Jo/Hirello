@@ -5,13 +5,13 @@ import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.entity.Timestamped;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -60,12 +60,12 @@ public class Board extends Timestamped {
         boardMembers.add(BoardMember.of(user, this, role));
     }
 
-    public void checkColumn(Long columnId) {
-        boolean columnExist = this.progressList.stream()
-                .anyMatch(column -> column.getId().equals(columnId));
+    public void checkProgress(Long progressId) {
+        boolean progressExist = this.progressList.stream()
+                .anyMatch(progress -> progress.getId().equals(progressId));
 
-        if (!columnExist) {
-            throw new EntityNotFoundException("컬럼이 존재하지 않습니다.");
+        if (!progressExist) {
+            throw new EntityNotFoundException("progress가 존재하지 않습니다.");
         }
     }
 

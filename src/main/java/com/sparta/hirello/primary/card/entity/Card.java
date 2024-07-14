@@ -3,8 +3,8 @@ package com.sparta.hirello.primary.card.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
-import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.comment.entity.Comment;
+import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,6 +24,8 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long orderNumber;
 
     @Column(nullable = false)
     private String title;
@@ -51,7 +53,6 @@ public class Card {
     @Builder
     private Card (String title, String description, LocalDateTime deadlineAt,
                   User worker, Progress progress, User user) {
-
         this.title = title;
         this.description = description;
         this.deadlineAt = deadlineAt;
@@ -88,5 +89,4 @@ public class Card {
 
         return this;
     }
-
 }

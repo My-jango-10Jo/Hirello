@@ -24,11 +24,11 @@ public class CardOfProgressResponse {
 
 
     public static CardOfProgressResponse of(List<Card> checkedCardList) {
-        List<CardResponse> cardOfProgressList = checkedCardList.stream()
+        List<CardResponse> cardOfColumnList = checkedCardList.stream()
                 .map(CardResponse::of).toList();
 
         return CardOfProgressResponse.builder()
-                .cardOfProgressList(cardOfProgressList)
+                .cardOfColumnList(cardOfColumnList)
                 .build();
     }
 }
