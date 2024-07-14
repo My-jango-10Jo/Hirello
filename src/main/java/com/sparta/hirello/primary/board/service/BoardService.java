@@ -9,8 +9,11 @@ import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
+<<<<<<< Updated upstream
 import com.sparta.hirello.secondary.exception.NotBoardManagerException;
 import com.sparta.hirello.secondary.exception.UninvitedBoardMemberException;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

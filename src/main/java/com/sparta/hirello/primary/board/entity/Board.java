@@ -5,13 +5,18 @@ import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.entity.Timestamped;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< Updated upstream
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+=======
+>>>>>>> Stashed changes
 
 @Entity
 @Getter
@@ -59,6 +64,7 @@ public class Board extends Timestamped {
     public void addMember(User user, BoardRole role) {
         boardMembers.add(BoardMember.of(user, this, role));
     }
+<<<<<<< Updated upstream
 
     public void checkColumn(Long columnId) {
         boolean columnExist = this.progressList.stream()
@@ -69,4 +75,6 @@ public class Board extends Timestamped {
         }
     }
 
+=======
+>>>>>>> Stashed changes
 }

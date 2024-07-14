@@ -1,6 +1,10 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.card.entity.Card;
+<<<<<<< Updated upstream
+=======
+import com.sparta.hirello.primary.column.entity.Columns;
+>>>>>>> Stashed changes
 import lombok.Builder;
 import lombok.Data;
 
