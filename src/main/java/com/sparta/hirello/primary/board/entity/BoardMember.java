@@ -25,29 +25,20 @@ public class BoardMember {
     private Board board;
 
     @Enumerated(value = EnumType.STRING)
-    private BoardAuthority boardAuthority; // [USER, MANAGER]
+    private BoardRole boardRole; // [USER, MANAGER]
 
-    private BoardMember(User user, Board board) {
+    private BoardMember(User user, Board board, BoardRole role) {
         this.user = user;
         this.board = board;
-        this.boardAuthority = BoardAuthority.USER;
+        this.boardRole = role;
     }
 
-    private BoardMember(User user, Board board, BoardAuthority boardAuthority) {
-        this.user = user;
-        this.board = board;
-        this.boardAuthority = boardAuthority;
+    public static BoardMember of(User user, Board board, BoardRole role) {
+        return new BoardMember(user, board, role);
     }
 
-    public static BoardMember of(User user, Board board) {
-        return new BoardMember(user, board);
+    public void updateRole(BoardRole boardRole) {
+        this.boardRole = boardRole;
     }
 
-    public static BoardMember of(User user, Board board, BoardAuthority boardAuthority) {
-        return new BoardMember(user, board, boardAuthority);
-    }
-
-    public void updateRole(BoardAuthority boardAuthority) {
-        this.boardAuthority = boardAuthority;
-    }
 }

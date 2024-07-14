@@ -1,128 +1,105 @@
 package com.sparta.hirello.primary.board.controller;
 
+import com.sparta.hirello.primary.board.dto.request.BoardMemberRequest;
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
-import com.sparta.hirello.primary.board.dto.request.BoardUserRequest;
-import com.sparta.hirello.primary.board.dto.request.BoardUserRoleRequest;
+import com.sparta.hirello.primary.board.dto.response.BoardMemberResponse;
 import com.sparta.hirello.primary.board.dto.response.BoardResponse;
-import com.sparta.hirello.primary.board.dto.response.BoardUserResponse;
+import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.board.service.BoardService;
-import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.dto.CommonResponse;
 import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
 @RestController
-@RequestMapping("/boards")
 @RequiredArgsConstructor
+@RequestMapping("/boards")
 public class BoardController {
 
     private final BoardService boardService;
 
     /**
-     * 보드를 생성 합니다.
-     *
-     * @param userDetails 인가된 유저 정보
-     * @param requestDto  클라이언트에서 요청한 보드 생성 정보
+     * 보드 생성
      */
     @PostMapping
     public ResponseEntity<CommonResponse<?>> createBoard(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BoardRequest requestDto
+            @Valid @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        User user = userDetails.getUser();
-        BoardResponse response = boardService.createBoard(user, requestDto);
-        return getResponseEntity(response, "보드 생성 완료 ");
+        Board board = boardService.createBoard(request, userDetails.getUser());
+        return getResponseEntity(BoardResponse.of(board), "보드 생성 성공");
     }
 
     /**
-     * 보드에 유저를 초대 합니다.
-     *
-     * @param userDetails 인가된 유저 정보
-     * @param boardId     클라이언트에서 요청한 보드 생성 정보
-     */
-    @PostMapping("/{boardId}")
-    public ResponseEntity<CommonResponse<?>> boardUserInvite(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long boardId,
-            @RequestBody BoardUserRequest request) {
-        User user = userDetails.getUser();
-        BoardUserResponse response = boardService.boardUserInvite(user,
-                boardId, request);
-        return getResponseEntity(response, "초대 완료");//미구현
-    }
-
-    /**
-     * 보드 목록들을 조회 합니다.
+     * 사용자 보드(자신이 생성한 보드이거나 초대된 보드) 목록 조회
      */
     @GetMapping
     public ResponseEntity<CommonResponse<?>> getBoardList(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        User user = userDetails.getUser();
-        List<BoardResponse> responseDtos = boardService.getBoardList(user);
-
-        return getResponseEntity(responseDtos, "보드 목록 조회 완료");
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            Pageable pageable
+    ) {
+        Page<Board> page = boardService.getUserBoards(userDetails.getUser(), pageable);
+        Page<BoardResponse> response = page.map(BoardResponse::of);
+        return getResponseEntity(response, "사용자 보드 목록 조회 성공");
     }
 
     /**
      * 보드 수정
-     *
-     * @param userDetails 인가된 유저 정보
-     * @param requestDto  클라이언트에서 요청한 보드 수정 정보
-     * @param boardId     수정 해야할 보드 정보
      */
     @PutMapping("/{boardId}")
     public ResponseEntity<CommonResponse<?>> updateBoard(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BoardRequest requestDto,
-            @PathVariable Long boardId
+            @PathVariable Long boardId,
+            @Valid @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        User user = userDetails.getUser();
-        BoardResponse responseDto = boardService.updateBoard(user, requestDto, boardId);
-
-        return getResponseEntity(responseDto, "보드 수정 완료");
+        Board board = boardService.updateBoard(boardId, request, userDetails.getUser());
+        return getResponseEntity(BoardResponse.of(board), "보드 수정 성공");
     }
 
     /**
      * 보드 삭제
-     *
-     * @param userDetails 인가된 유저 정보
-     * @param boardId     삭제 해야할 보드 정보
      */
     @DeleteMapping("/{boardId}")
     public ResponseEntity<CommonResponse<?>> deleteBoard(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long boardId
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        User user = userDetails.getUser();
-        boardService.deleteBoard(user, boardId);
-        return getResponseEntity(1, "보드 삭제 완료");
+        Long response = boardService.deleteBoard(boardId, userDetails.getUser());
+        return getResponseEntity(response, "보드 삭제 성공");
     }
 
     /**
-     * 보드 맴버 유저의 권한을 변경 합니다.
-     *
-     * @param userDetails   인가된 유저 정보
-     * @param boardMemberId 삭제 해야할 보드 정보
-     * @param request       변경할 유저의 ID,요청 권한 정보
+     * 보드 맴버 초대
      */
-    @PatchMapping("/boardmembers/{boardMemberId}")
-    public ResponseEntity<CommonResponse<?>> updateUserBoardRole(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long boardMemberId,
-            @RequestBody BoardUserRoleRequest request
+    @PostMapping("/{boardId}/invite-user")
+    public ResponseEntity<CommonResponse<?>> inviteUser(
+            @PathVariable Long boardId,
+            @RequestBody BoardMemberRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        User user = userDetails.getUser();
-
-        BoardUserResponse response = boardService.updateUserBoardRole(user, boardMemberId, request);
-
-        return getResponseEntity(response, "권한 변경 완료");
+        BoardMember boardMember = boardService.inviteUser(boardId, request, userDetails.getUser());
+        return getResponseEntity(BoardMemberResponse.of(boardMember), "보드 맴버 초대 성공");
     }
+
+    /**
+     * 보드 멤버 권한 변경
+     */
+    @PatchMapping("/{boardId}/update-user")
+    public ResponseEntity<CommonResponse<?>> updateUserBoardRole(
+            @PathVariable Long boardId,
+            @RequestBody BoardMemberRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        BoardMember boardMember = boardService.updateBoardMemberRole(boardId, request, userDetails.getUser());
+        return getResponseEntity(BoardMemberResponse.of(boardMember), "보드 멤버 권한 변경 성공");
+    }
+
 }
