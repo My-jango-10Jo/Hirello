@@ -1,4 +1,4 @@
-package com.sparta.hirello.primary.column.entity;
+package com.sparta.hirello.primary.progress.entity;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.card.entity.Card;
@@ -13,15 +13,15 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "columns")
-public class Columns {
+@Table(name = "progress")
+public class Progress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long columnId;
+    private Long id;
 
     @Column(nullable = false)
-    private String columnName;
+    private String progressName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -31,15 +31,15 @@ public class Columns {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @OneToMany(mappedBy = "columns", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "progress", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cardList;
 
-    private Columns(String columnName, User user, Board board){
-        this.columnName=columnName;
+    private Progress(String progressName, User user, Board board){
+        this.progressName=progressName;
         this.user=user;
         this.board=board;
     }
-    public static Columns of(String columnName, User user, Board board) {
-        return new Columns(columnName, user, board);
+    public static Progress of(String progressName, User user, Board board) {
+        return new Progress(progressName, user, board);
     }
 }

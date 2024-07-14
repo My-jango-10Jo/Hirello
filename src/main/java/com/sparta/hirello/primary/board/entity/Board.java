@@ -10,13 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< Updated upstream
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-=======
->>>>>>> Stashed changes
 
 @Entity
 @Getter
@@ -64,17 +59,14 @@ public class Board extends Timestamped {
     public void addMember(User user, BoardRole role) {
         boardMembers.add(BoardMember.of(user, this, role));
     }
-<<<<<<< Updated upstream
 
-    public void checkColumn(Long columnId) {
-        boolean columnExist = this.progressList.stream()
-                .anyMatch(column -> column.getId().equals(columnId));
+    public void checkProgress(Long progressId) {
+        boolean progressExist = this.progressList.stream()
+                .anyMatch(progress -> progress.getId().equals(progressId));
 
-        if (!columnExist) {
-            throw new EntityNotFoundException("컬럼이 존재하지 않습니다.");
+        if (!progressExist) {
+            throw new EntityNotFoundException("progress가 존재하지 않습니다.");
         }
     }
 
-=======
->>>>>>> Stashed changes
 }

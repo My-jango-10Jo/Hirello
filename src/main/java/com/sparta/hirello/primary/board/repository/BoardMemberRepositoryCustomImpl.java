@@ -3,6 +3,7 @@ package com.sparta.hirello.primary.board.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.hirello.primary.board.entity.BoardMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import static com.sparta.hirello.primary.board.entity.QBoardMember.boardMember;
 import static com.sparta.hirello.primary.user.entity.QUser.user;
 
 @RequiredArgsConstructor
+@Component
 public class BoardMemberRepositoryCustomImpl implements BoardMemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -31,6 +33,6 @@ public class BoardMemberRepositoryCustomImpl implements BoardMemberRepositoryCus
                 .join(boardMember.user, user)
                 .join(boardMember.board, board)
                 .where(boardMember.user.id.eq(userId))
-                .where(boardMember.board.boardId.eq(boardId)).fetchOne());
+                .where(boardMember.board.id.eq(boardId)).fetchOne());
     }
 }

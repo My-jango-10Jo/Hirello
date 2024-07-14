@@ -133,20 +133,20 @@
         const targetColumn = event.target.closest('.kanban-column');
 
         if (targetColumn && column !== targetColumn) {
-            const columns = Array.from(board.children);
-            const targetIndex = columns.indexOf(targetColumn);
+            const progress = Array.from(board.children);
+            const targetIndex = progress.indexOf(targetColumn);
 
-            board.insertBefore(column, targetIndex > 0 ? columns[targetIndex + 1] : targetColumn);
+            board.insertBefore(column, targetIndex > 0 ? progress[targetIndex + 1] : targetColumn);
             saveColumnOrder();
         }
     }
 
     // Save Card Order to Backend
     function saveCardOrder() {
-        const columns = document.querySelectorAll('.kanban-column');
+        const progress = document.querySelectorAll('.kanban-column');
         const cardOrder = {};
 
-        columns.forEach(column => {
+        progress.forEach(column => {
             const cards = Array.from(column.querySelector('.kanban-cards').children);
             cardOrder[column.id] = cards.map(card => card.id);
         });
@@ -170,8 +170,8 @@
     // Save Column Order to Backend
     function saveColumnOrder() {
         const board = document.getElementById('kanban-board');
-        const columns = Array.from(board.children);
-        const columnOrder = columns.map(column => column.id);
+        const progress = Array.from(board.children);
+        const columnOrder = progress.map(column => column.id);
 
         fetch('/api/saveColumnOrder', {
             method: 'POST',

@@ -1,10 +1,5 @@
 package com.sparta.hirello.primary.card.dto.response;
-
 import com.sparta.hirello.primary.card.entity.Card;
-<<<<<<< Updated upstream
-=======
-import com.sparta.hirello.primary.column.entity.Columns;
->>>>>>> Stashed changes
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,13 +17,13 @@ public class CardResponse {
     private Long columnId;
 
     private CardResponse(Card card) {
-        this.boardId = card.getColumns().getBoard().getBoardId();
-        this.cardId = card.getCardId();
+        this.boardId = card.getProgress().getBoard().getId();
+        this.cardId = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadlineAt = card.getDeadlineAt();
         this.workerName = card.getWorker().getUsername();
-        this.columnId = card.getColumns().getColumnId();
+        this.columnId = card.getProgress().getId();
     }
 
     public static CardResponse of(Card card) {

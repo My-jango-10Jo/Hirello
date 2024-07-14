@@ -1,7 +1,7 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.column.entity.Columns;
+import com.sparta.hirello.primary.progress.entity.Progress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,20 +22,21 @@ public class AllCardOfBoardResponse {
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-    private Columns columns;
-    private Long columnId;
+    private Progress progress;
+    private Long progressId;
 
     private final List<CardResponse> cardOfBoardList;
 
     public static AllCardOfBoardResponse of(Board board) {
 
-        List<CardResponse> cardResponseList = board.getColumnsList().stream()
+        List<CardResponse> cardResponseList =
+                board.getProgressList().stream()
                 .flatMap(columns -> columns.getCardList().stream())
                 .map(CardResponse::of)
                 .collect(Collectors.toList());
 
         return AllCardOfBoardResponse.builder()
-                .boardId(board.getBoardId())
+                .boardId(board.getId())
                 .cardOfBoardList(cardResponseList)
                 .build();
     }

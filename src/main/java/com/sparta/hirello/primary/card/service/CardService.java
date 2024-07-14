@@ -1,30 +1,19 @@
 package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
-<<<<<<< Updated upstream
 import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
-import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyProgressRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
-=======
-import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
-import com.sparta.hirello.primary.board.repository.BoardRepository;
-import com.sparta.hirello.primary.card.dto.request.CardOfColumnRequest;
-import com.sparta.hirello.primary.card.dto.request.CardOfSpecificWorkerRequest;
->>>>>>> Stashed changes
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.repository.CardRepository;
-import com.sparta.hirello.primary.column.entity.Columns;
+import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
-<<<<<<< Updated upstream
 import com.sparta.hirello.secondary.exception.NoAuthorityException;
-=======
-import com.sparta.hirello.secondary.exception.UserNotFoundException;
->>>>>>> Stashed changes
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,90 +33,67 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardMemberRepository boardMemberRepository;
 
+    /**
+     * Card 생성
+     */
     @Transactional
     public Card createCard(User loginUser, CreateCardRequest request) {
 
-        //board 존재 확인 및 추출
-        Board checkedBoard = checkBoard(request.getBoardId());
-
-        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(loginUser.getUsername());
-        checkMember(checkedBoard.getBoardId(), loginUserId);
-
-        Columns existColumn = isExistColumn(checkedBoard, request.getColumnId());
+        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
+        Progress existProgress = existProgress(basicCheckedBoard, request.getProgressId());
 
         //할당된 작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-<<<<<<< Updated upstream
-        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), request.getWorkerId());
-=======
-        User worker = invitedUser(checkedBoard.getBoardId(), request.getWorkerId());
->>>>>>> Stashed changes
+        User worker = getInvitedUser(basicCheckedBoard.getId(), request.getWorkerId());
 
-        Card newCard = Card.of(request, loginUser, worker, existColumn);
+        Card newCard = Card.of(request, loginUser, worker, existProgress);
         return cardRepository.save(newCard);
     }
 
+    /**
+     * Board 의 모든 Card 조회
+     */
 
     public Board getAllCardOfBoard(User loginUser, Long boardId) {
 
-        //board 존재 확인 및 추출
-        Board checkedBoard = checkBoard(boardId);
-
-        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(loginUser.getUsername());
-        checkMember(checkedBoard.getBoardId(), loginUserId);
-
-        return checkedBoard;
+        return getBoard(boardId,loginUser.getUsername());
     }
 
-    public List<Card> getCardOfSpecificWorker(User loginUser,Long boardId, Long workerId) {
+    /**
+     * 특정 Worker 의 모든 Card 조회
+     */
+    public List<Card> getCardOfSpecificWorker(User loginUser, Long boardId, Long workerId) {
 
-<<<<<<< Updated upstream
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), workerId);
-=======
-        //board 존재 확인 및 추출
-        Board checkedBoard = checkBoard(request.getBoardId());
+        User worker = getInvitedUser(basicCheckedBoard.getId(), workerId);
 
-        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(loginUser.getUsername());
-        checkMember(checkedBoard.getBoardId(), loginUserId);
-
-        //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = invitedUser(checkedBoard.getBoardId(), request.getWorkerId());
->>>>>>> Stashed changes
-
-        List<Card> CardListOfSpecificWorker =  cardRepository.findCardByWorkerId(worker.getId());
+        List<Card> CardListOfSpecificWorker = cardRepository.findByWorkerId(worker.getId());
         if (CardListOfSpecificWorker.isEmpty()) {
             throw new EntityNotFoundException("작업자에게 할당된 카드가 없습니다.");
         }
         return CardListOfSpecificWorker;
     }
 
+    /**
+     * 특정 Column 의 모든 Card 조회
+     */
     public List<Card> getCardOfColumn(User loginUser, Long boardId, Long columnId) {
 
         //board 존재 확인 및 추출
-<<<<<<< Updated upstream
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
-        Columns existColumn = existColumn(basicCheckedBoard, columnId);
-=======
-        Board checkedBoard = checkBoard(request.getBoardId());
->>>>>>> Stashed changes
+        Progress existProgress = existProgress(basicCheckedBoard, columnId);
 
-        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(loginUser.getUsername());
-        checkMember(checkedBoard.getBoardId(), loginUserId);
-
-        List<Card> cardListOfColumn = cardRepository.findCardByColumnsColumnId(request.getColumnId());
+        List<Card> cardListOfColumn = cardRepository.findByProgressId(existProgress.getId());
         if (cardListOfColumn.isEmpty()) {
             throw new EntityNotFoundException("컬럼이 비어있습니다.");
         }
         return cardListOfColumn;
     }
 
-<<<<<<< Updated upstream
+    /**
+     * Card 내용 업데이트(progress 제외)
+     */
     @Transactional
     public Card updateCard(User loginUser, Long cardId, CardUpdateRequest request) {
 
@@ -139,11 +105,11 @@ public class CardService {
         );
 
         //수정할 카드의 컬럼 존재
-        basicCheckedBoard.checkColumn(request.getColumnId());
+        basicCheckedBoard.checkProgress(request.getProgressId());
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
         User worker = request.getWorkerName() != null ?
-                getInvitedUser(basicCheckedBoard.getBoardId(), getUserId(request.getWorkerName()))
+                getInvitedUser(basicCheckedBoard.getId(), getUserId(request.getWorkerName()))
                 : null;
 
         Card updatedCard = targetCard.updateCard(request, worker);
@@ -151,39 +117,60 @@ public class CardService {
         return updatedCard;
     }
 
+    /**
+     * Card 의 Column 변경(이동)
+     */
     @Transactional
-    public Card updateCardColumn(User loginUser, Long cardId, CardUpdateOnlyColumnRequest request) {
+    public Card updateCardProgress(User loginUser, Long cardId, CardUpdateOnlyProgressRequest request) {
 
         Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        Columns existColumn = existColumn(basicCheckedBoard, request.getColumnId());
+        Progress existProgress  = existProgress(basicCheckedBoard, request.getProgressId());
 
         //수정할 카드 확인
         Card targetCard = cardRepository.findById(cardId).orElseThrow(
                 () -> new EntityNotFoundException("삭제된 카드입니다.")
         );
 
-        Card updatedCard = targetCard.updateCardColumn(existColumn);
+        //카드끼리의 위치 정하기 로직
+
+
+        Card updatedCard = targetCard.updateCardProgress(existProgress);
+
         cardRepository.save(updatedCard);
         return updatedCard;
     }
 
+    /**
+     * Card 삭제
+     */
     @Transactional
     public void deleteCard(User loginUser, Long cardId, CardDeleteRequest request) {
 
         Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        basicCheckedBoard.checkColumn(request.getColumnId());
+        basicCheckedBoard.checkProgress(request.getProgressId());
 
         Card targetCard = cardRepository.findById(cardId).orElseThrow(
                 () -> new EntityNotFoundException("이미 삭제된 카드입니다.")
         );
+
+        //redirect 해서 확인 받기? // 또는 delete 까지는 진행하지 말고 끝낸 다음 Controller 에서 Controller 를 호출하게 만들기?
         cardRepository.delete(targetCard);
     }
-=======
->>>>>>> Stashed changes
 
 
-    private Board checkBoard(Long boardId) {
-        return boardRepository.findBoardByBoardId(boardId)
+    private Board getBoard(Long boardId, String username) { //메서드명 정정 //check validation
+        //board 존재 확인 및 추출
+        Board checkedBoard = getBoard(boardId);
+
+        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
+        Long loginUserId = getUserId(username);
+        checkMember(checkedBoard.getId(), loginUserId);
+
+        return checkedBoard;
+    }
+
+    private Board getBoard(Long boardId) {
+        return boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("보드가 존재하지 않습니다")); //임시 예외 처리
     }
 
@@ -192,40 +179,22 @@ public class CardService {
                 .orElseThrow(() -> new EntityNotFoundException("찾을 수 없는 사용자입니다.")); //임시 예외 처리
     }
 
-<<<<<<< Updated upstream
     private void checkMember(Long boardId, Long userId) {
         boardMemberRepository.findByUserIdAndBoardId(userId, boardId).orElseThrow(
                 () -> new NoAuthorityException("Card 생성 권한이 없습니다")
         );
-=======
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    private void checkMember(Long boardId, Long userId) {
-        boolean isMember = boardMemberRepository.findMemberByBoardIdandUserId(boardId, userId);
-        if (!isMember) {
-            throw new NoAuthorityExcpetion("Card 생성 권한이 없습니다");
-        }
->>>>>>> Stashed changes
-    }
+    private Progress existProgress(Board board, Long progressId) { //getColumn 으로
 
-    private Columns isExistColumn(Board board, Long columnId) {
-
-        return board.getColumnsList().stream()
-                .filter(column -> column.getColumnId().equals(columnId))
+        return board.getProgressList().stream()
+                .filter(progress -> progress.getId().equals(progressId))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("컬럼이 존재하지 않습니다"));
     }
 
-<<<<<<< Updated upstream
     private User getInvitedUser(Long boardId, Long workerId) {
         BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardId(workerId, boardId)
-=======
-    private User invitedUser(Long boardId, Long workerId) {
-        return boardMemberRepository.findMemberByBoardIdandUserId(boardId, workerId)
->>>>>>> Stashed changes
                 .orElseThrow(() -> new EntityNotFoundException("보드멤버가 아닙니다."));
 
         return boardMember.getUser();

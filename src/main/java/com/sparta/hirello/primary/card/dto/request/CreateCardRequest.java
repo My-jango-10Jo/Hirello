@@ -14,7 +14,7 @@ public class CreateCardRequest {
     Long boardId;
 
     @NotNull(message = "컬럼을 선택해 주세요")
-    Long columnId;
+    Long progressId;
 
     @NotBlank(message = "제목을 입력해주세요.")
     String title;

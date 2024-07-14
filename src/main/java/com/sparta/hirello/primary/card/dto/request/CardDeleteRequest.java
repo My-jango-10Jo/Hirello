@@ -11,6 +11,6 @@ public class CardDeleteRequest {
     Long boardId;
 
     @NotNull
-    Long columnId;
+    Long progressId;
 
 }

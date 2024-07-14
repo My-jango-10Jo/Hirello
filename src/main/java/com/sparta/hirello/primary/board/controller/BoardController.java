@@ -1,9 +1,7 @@
 package com.sparta.hirello.primary.board.controller;
 
-<<<<<<< Updated upstream
+
 import com.sparta.hirello.primary.board.dto.request.BoardMemberRequest;
-=======
->>>>>>> Stashed changes
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.board.dto.response.BoardMemberResponse;
 import com.sparta.hirello.primary.board.dto.response.BoardResponse;
@@ -20,11 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-<<<<<<< Updated upstream
-=======
-import java.util.List;
-
->>>>>>> Stashed changes
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
 @RestController
@@ -80,8 +73,9 @@ public class BoardController {
             @PathVariable Long boardId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long response = boardService.deleteBoard(boardId, userDetails.getUser());
-        return getResponseEntity(response, "보드 삭제 성공");
+        //Long response = boardService.deleteBoard(boardId, userDetails.getUser());
+        boardService.deleteBoard(boardId, userDetails.getUser());
+        return getResponseEntity(boardId, "보드 삭제 성공");
     }
 
     /**
