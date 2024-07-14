@@ -1,6 +1,5 @@
 package com.sparta.hirello.primary.board.controller;
 
-
 import com.sparta.hirello.primary.board.dto.request.BoardMemberRequest;
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
 import com.sparta.hirello.primary.board.dto.response.BoardMemberResponse;

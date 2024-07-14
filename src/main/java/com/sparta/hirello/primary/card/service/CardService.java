@@ -84,8 +84,8 @@ public class CardService {
         Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
         Progress existProgress = existProgress(basicCheckedBoard, progressId);
 
-        List<Card> cardListOfColumn = cardRepository.findByProgressId(existProgress.getId());
-        if (cardListOfColumn.isEmpty()) {
+        List<Card> cardListOfProgress = cardRepository.findByProgressId(existProgress.getId());
+        if (cardListOfProgress.isEmpty()) {
             throw new EntityNotFoundException("컬럼이 비어있습니다.");
         }
         return cardListOfProgress;
