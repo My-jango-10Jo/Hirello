@@ -1,7 +1,6 @@
 package com.sparta.hirello.primary.column.entity;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.user.entity.User;
 import jakarta.persistence.*;

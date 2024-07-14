@@ -1,6 +1,7 @@
 package com.sparta.hirello.primary.comment.service;
 
 import com.sparta.hirello.primary.card.entity.Card;
+import com.sparta.hirello.primary.card.repository.CardRepository;
 import com.sparta.hirello.primary.comment.dto.CommentRequest;
 import com.sparta.hirello.primary.comment.entity.Comment;
 import com.sparta.hirello.primary.comment.repository.CommentRepository;

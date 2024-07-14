@@ -17,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -73,7 +76,6 @@ public class BoardService {
     public Long deleteBoard(Long boardId, User user) {
         Board board = getBoardAndVerifyManager(boardId, user);
         boardRepository.delete(board);
-        return boardId;
     }
 
     /**
