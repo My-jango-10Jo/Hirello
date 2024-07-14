@@ -1,15 +1,19 @@
 package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.board.entity.BoardMember;
+import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
-import com.sparta.hirello.primary.card.dto.request.*;
+import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
+import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.repository.CardRepository;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
 import com.sparta.hirello.secondary.exception.NoAuthorityException;
-import com.sparta.hirello.secondary.exception.UserNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static com.sparta.hirello.primary.board.entity.Board.*;
 
 @Slf4j
 @Service
@@ -38,10 +40,9 @@ public class CardService {
         Columns existColumn = existColumn(basicCheckedBoard, request.getColumnId());
 
         //할당된 작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = invitedUser(basicCheckedBoard.getBoardId(), request.getWorkerId());
+        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), request.getWorkerId());
 
         Card newCard = Card.of(request, loginUser, worker, existColumn);
-
         return cardRepository.save(newCard);
     }
 
@@ -51,32 +52,30 @@ public class CardService {
         return getBoard(boardId,loginUser.getUsername());
     }
 
-    public List<Card> getCardOfSpecificWorker(User loginUser, CardOfSpecificWorkerRequest request) {
+    public List<Card> getCardOfSpecificWorker(User loginUser,Long boardId, Long workerId) {
 
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
+        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = invitedUser(basicCheckedBoard.getBoardId(), request.getWorkerId());
+        User worker = getInvitedUser(basicCheckedBoard.getBoardId(), workerId);
 
         List<Card> CardListOfSpecificWorker = cardRepository.findCardByWorkerId(worker.getId());
         if (CardListOfSpecificWorker.isEmpty()) {
             throw new EntityNotFoundException("작업자에게 할당된 카드가 없습니다.");
         }
-
         return CardListOfSpecificWorker;
     }
 
-    public List<Card> getCardOfColumn(User loginUser, CardOfColumnRequest request) {
+    public List<Card> getCardOfColumn(User loginUser, Long boardId, Long columnId) {
 
         //board 존재 확인 및 추출
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        Columns existColumn = existColumn(basicCheckedBoard, request.getColumnId());
+        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
+        Columns existColumn = existColumn(basicCheckedBoard, columnId);
 
         List<Card> cardListOfColumn = cardRepository.findCardByColumnsColumnId(existColumn.getColumnId());
         if (cardListOfColumn.isEmpty()) {
             throw new EntityNotFoundException("컬럼이 비어있습니다.");
         }
-
         return cardListOfColumn;
     }
 
@@ -95,7 +94,7 @@ public class CardService {
 
         //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
         User worker = request.getWorkerName() != null ?
-                invitedUser(basicCheckedBoard.getBoardId(), getUserId(request.getWorkerName()))
+                getInvitedUser(basicCheckedBoard.getBoardId(), getUserId(request.getWorkerName()))
                 : null;
 
         Card updatedCard = targetCard.updateCard(request, worker);
@@ -116,7 +115,6 @@ public class CardService {
 
         Card updatedCard = targetCard.updateCardColumn(existColumn);
         cardRepository.save(updatedCard);
-
         return updatedCard;
     }
 
@@ -154,16 +152,10 @@ public class CardService {
                 .orElseThrow(() -> new EntityNotFoundException("찾을 수 없는 사용자입니다.")); //임시 예외 처리
     }
 
-//    private User getUser(Long userId) {
-//        return userRepository.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException(userId));
-//    }
-
     private void checkMember(Long boardId, Long userId) {
-        boolean isMember = boardMemberRepository.findMemberByBoardIdAndUserId(boardId, userId);
-        if (!isMember) {
-            throw new NoAuthorityException("Card 생성 권한이 없습니다");
-        }
+        boardMemberRepository.findByUserIdAndBoardId(userId, boardId).orElseThrow(
+                () -> new NoAuthorityException("Card 생성 권한이 없습니다")
+        );
     }
 
     private Columns existColumn(Board board, Long columnId) { //getColumn 으로
@@ -174,8 +166,10 @@ public class CardService {
                 .orElseThrow(() -> new EntityNotFoundException("컬럼이 존재하지 않습니다"));
     }
 
-    private User invitedUser(Long boardId, Long workerId) { //getInvitedUser
-        return boardMemberRepository.findMemberByBoardIdAndUserId(boardId, workerId)
+    private User getInvitedUser(Long boardId, Long workerId) {
+        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardId(workerId, boardId)
                 .orElseThrow(() -> new EntityNotFoundException("보드멤버가 아닙니다."));
+
+        return boardMember.getUser();
     }
 }

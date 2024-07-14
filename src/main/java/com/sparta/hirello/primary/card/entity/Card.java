@@ -1,8 +1,6 @@
 package com.sparta.hirello.primary.card.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
@@ -26,6 +24,8 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cardId;
+
+    private Long orderNumber;
 
     @Column(nullable = false)
     private String title;

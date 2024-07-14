@@ -1,70 +1,68 @@
 package com.sparta.hirello.primary.board.entity;
 
 import com.sparta.hirello.primary.board.dto.request.BoardRequest;
-import com.sparta.hirello.primary.column.entity.Columns;
+import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
+import com.sparta.hirello.secondary.base.entity.Timestamped;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@Table(name = "boards")
-public class Board {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Board extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId;
+    @Column(name = "board_id")
+    private Long id;
+
+    private String name;
+
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(nullable = false)
-    private String boardName;
-
-    private String headline;
+    private User user; // 보드 생성자
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Columns> columnsList = new ArrayList<>();
+    private List<Progress> progressList = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BoardMember> memberList = new ArrayList<>();
-
-    private Board(BoardRequest requestDto, User user) {
-        this.user = user;
-        this.boardName = requestDto.getBoardName();
-        this.headline = requestDto.getHeadline();
-    }
-
-    public static Board of(BoardRequest requestDto, User user) {
-        return new Board(requestDto, user);
-    }
-
-    public void update(String boardName, String headline) {
-        this.boardName = boardName;
-        this.headline = headline;
-    }
+    private List<BoardMember> boardMembers = new ArrayList<>();
 
     /**
-     * 보드생성자와 작업 요청한 유저 정보가 맞는지 확인 합니다, 틀리면 Exception
-     *
-     * @param board board에 getUser().getId()의 정보
-     * @param user  요청자의 유저 정보
+     * 생성자
      */
-    public void compareUserId(Board board, User user) {
-        if (!user.getId().equals(board.getUser().getId())) {
-            throw new IllegalArgumentException("보드 생성자가 아닙니다.");
-        }
+    private Board(BoardRequest request, User user) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.user = user;
+        addMember(user, BoardRole.MANAGER); // 보드 생성자는 자동으로 매니저 권한을 갖는다.
+    }
+
+    public static Board of(BoardRequest request, User user) {
+        return new Board(request, user);
+    }
+
+    public void update(BoardRequest request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+    }
+
+    public void addMember(User user, BoardRole role) {
+        boardMembers.add(BoardMember.of(user, this, role));
     }
 
     public void checkColumn(Long columnId) {
-        boolean columnExist = this.columnsList.stream()
-                .anyMatch(column -> column.getColumnId().equals(columnId));
+        boolean columnExist = this.progressList.stream()
+                .anyMatch(column -> column.getId().equals(columnId));
 
         if (!columnExist) {
             throw new EntityNotFoundException("컬럼이 존재하지 않습니다.");

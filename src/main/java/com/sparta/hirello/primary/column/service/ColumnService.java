@@ -1,7 +1,7 @@
 package com.sparta.hirello.primary.column.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.board.jpa.BoardRepository;
+import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.column.dto.request.ColumnRequest;
 import com.sparta.hirello.primary.column.entity.Columns;
 import com.sparta.hirello.primary.column.repository.ColumnRepository;

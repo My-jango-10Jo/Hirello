@@ -1,7 +1,10 @@
 package com.sparta.hirello.primary.card.controller;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.card.dto.request.*;
+import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
+import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.dto.response.*;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.service.CardService;
@@ -10,9 +13,9 @@ import com.sparta.hirello.secondary.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,51 +45,45 @@ public class CardController {
         return getResponseEntity(CardResponse.of(newCard), "등록 성공");
     }
 
-
     /**
-     * Board 의 Card 전체 조회
+     * Card 조회 - 보드별, 컬럼별, 작업자별
      *
      * @param userDetails
      * @param boardId
+     * @param workerId
+     * @param columnId
+     * @return List<Card>
      */
-    @GetMapping("/{boardId}")
-    public ResponseEntity<CommonResponse<?>> getAllCardOfBoard(
+    @GetMapping
+    public ResponseEntity<CommonResponse<?>> getCards(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @PathVariable final Long boardId
+            @RequestParam(required = true) Long boardId,
+            @RequestParam(required = false) Long workerId,
+            @RequestParam(required = false) Long columnId
     ) {
-        Board checkedBoard = cardService.getAllCardOfBoard(userDetails.getUser(), boardId);
-        return getResponseEntity(AllCardOfBoardResponse.of(checkedBoard), "조회 성공");
+        if (columnId == null && workerId == null) {
+            Board checkedBoard = cardService.getAllCardOfBoard(userDetails.getUser(), boardId);
+            return getResponseEntity(AllCardOfBoardResponse.of(checkedBoard), "조회 성공");
+        }
 
-    }
+        if (columnId == null) {
+            List<Card> checkedCardList = cardService.getCardOfSpecificWorker(userDetails.getUser(), boardId, workerId);
+            return getResponseEntity(CardOfColumnResponse.of(checkedCardList), "조회 성공");
+        }
 
-    /**
-     * Worker 별 Card 조회
-     *
-     * @param userDetails
-     * @param request
-     */
-    @GetMapping("/workers")
-    public ResponseEntity<CommonResponse<?>> getCardOfSpecificWorker(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody final CardOfSpecificWorkerRequest request
-    ) {
-        List<Card> checkedCardList = cardService.getCardOfSpecificWorker(userDetails.getUser(), request);
-        return getResponseEntity(CardOfSpecificWorkerResponse.of(checkedCardList), "조회 성공");
-    }
+        if (workerId == null) {
+            List<Card> checkedCardList = cardService.getCardOfColumn(userDetails.getUser(), boardId, columnId);
+            return getResponseEntity(CardOfSpecificWorkerResponse.of(checkedCardList), "조회 성공");
+        }
 
-    /**
-     * Column 별 Card 조회
-     *
-     * @param userDetails
-     * @param request
-     */
-    @GetMapping("/column")
-    public ResponseEntity<CommonResponse<?>> getCardOfColumn(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody final CardOfColumnRequest request
-    ) {
-        List<Card> checkedCardList = cardService.getCardOfColumn(userDetails.getUser(), request);
-        return getResponseEntity(CardOfColumnResponse.of(checkedCardList), "조회 성공");
+
+        CommonResponse<?> errorResponse = CommonResponse.builder()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .msg("잘못된 접근입니다.")
+                .data(null)
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     /**
@@ -123,6 +120,13 @@ public class CardController {
         return getResponseEntity(CardUpdateResponse.of(updatedCard), "수정 성공");
     }
 
+    /**
+     * Card 삭제
+     *
+     * @param userDetails
+     * @param cardId
+     * @param request
+     */
     @DeleteMapping("/cloumn/{cardId}")
     public ResponseEntity<CommonResponse<?>> deleteCard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -130,7 +134,7 @@ public class CardController {
             @Valid @RequestBody final CardDeleteRequest request
     ) {
         cardService.deleteCard(userDetails.getUser(), cardId, request);
-        return getResponseEntity( "카드 삭제 완료");
+        return getResponseEntity("카드 삭제 완료");
     }
 
 

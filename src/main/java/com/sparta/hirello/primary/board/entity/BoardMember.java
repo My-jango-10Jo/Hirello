@@ -1,16 +1,7 @@
 package com.sparta.hirello.primary.board.entity;
 
 import com.sparta.hirello.primary.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,29 +25,20 @@ public class BoardMember {
     private Board board;
 
     @Enumerated(value = EnumType.STRING)
-    private BoardAuthority boardAuthority; // [USER, MANAGER]
+    private BoardRole boardRole; // [USER, MANAGER]
 
-    private BoardMember(User user, Board board) {
+    private BoardMember(User user, Board board, BoardRole role) {
         this.user = user;
         this.board = board;
-        this.boardAuthority = BoardAuthority.USER;
+        this.boardRole = role;
     }
 
-    private BoardMember(User user, Board board, BoardAuthority boardAuthority) {
-        this.user = user;
-        this.board = board;
-        this.boardAuthority = boardAuthority;
+    public static BoardMember of(User user, Board board, BoardRole role) {
+        return new BoardMember(user, board, role);
     }
 
-    public static BoardMember of(User user, Board board) {
-        return new BoardMember(user, board);
+    public void updateRole(BoardRole boardRole) {
+        this.boardRole = boardRole;
     }
 
-    public static BoardMember of(User user, Board board, BoardAuthority boardAuthority) {
-        return new BoardMember(user, board, boardAuthority);
-    }
-
-    public void updateRole(BoardAuthority boardAuthority) {
-        this.boardAuthority = boardAuthority;
-    }
 }

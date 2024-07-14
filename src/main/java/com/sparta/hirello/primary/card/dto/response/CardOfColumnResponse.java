@@ -1,8 +1,6 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.card.entity.Card;
-import com.sparta.hirello.primary.column.entity.Columns;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,9 +18,10 @@ public class CardOfColumnResponse {
     private String description;
     private LocalDateTime deadlineAt;
     private String workerName;
-    private Columns columns;
+    private Long columId;
 
     private final List<CardResponse> cardOfColumnList;
+
 
     public static CardOfColumnResponse of(List<Card> checkedCardList) {
         List<CardResponse> cardOfColumnList = checkedCardList.stream()

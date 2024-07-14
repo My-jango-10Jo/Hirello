@@ -1,8 +1,6 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.card.entity.Card;
-import com.sparta.hirello.primary.column.entity.Columns;
-import com.sparta.hirello.primary.user.entity.User;
 import lombok.Data;
 
 import java.time.LocalDateTime;

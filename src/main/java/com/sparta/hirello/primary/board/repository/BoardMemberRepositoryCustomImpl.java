@@ -1,14 +1,15 @@
 package com.sparta.hirello.primary.board.repository;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.hirello.primary.board.entity.BoardMember;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.Optional;
+
 import static com.sparta.hirello.primary.board.entity.QBoard.board;
 import static com.sparta.hirello.primary.board.entity.QBoardMember.boardMember;
 import static com.sparta.hirello.primary.user.entity.QUser.user;
-
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.hirello.primary.board.entity.BoardMember;
-import java.util.List;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BoardMemberRepositoryCustomImpl implements BoardMemberRepositoryCustom {
