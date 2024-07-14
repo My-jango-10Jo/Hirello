@@ -2,7 +2,7 @@ package com.sparta.hirello.primary.card.controller;
 
 import com.sparta.hirello.primary.board.entity.Board;
 import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
-import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyColumnRequest;
+import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyProgressRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.dto.response.*;
@@ -51,7 +51,7 @@ public class CardController {
      * @param userDetails
      * @param boardId
      * @param workerId
-     * @param columnId
+     * @param progressId
      * @return List<Card>
      */
     @GetMapping
@@ -59,20 +59,20 @@ public class CardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = true) Long boardId,
             @RequestParam(required = false) Long workerId,
-            @RequestParam(required = false) Long columnId
+            @RequestParam(required = false) Long progressId
     ) {
-        if (columnId == null && workerId == null) {
+        if (progressId == null && workerId == null) {
             Board checkedBoard = cardService.getAllCardOfBoard(userDetails.getUser(), boardId);
             return getResponseEntity(AllCardOfBoardResponse.of(checkedBoard), "조회 성공");
         }
 
-        if (columnId == null) {
+        if (progressId == null) {
             List<Card> checkedCardList = cardService.getCardOfSpecificWorker(userDetails.getUser(), boardId, workerId);
-            return getResponseEntity(CardOfColumnResponse.of(checkedCardList), "조회 성공");
+            return getResponseEntity(CardOfProgressResponse.of(checkedCardList), "조회 성공");
         }
 
         if (workerId == null) {
-            List<Card> checkedCardList = cardService.getCardOfColumn(userDetails.getUser(), boardId, columnId);
+            List<Card> checkedCardList = cardService.getCardOfProgress(userDetails.getUser(), boardId, progressId);
             return getResponseEntity(CardOfSpecificWorkerResponse.of(checkedCardList), "조회 성공");
         }
 
@@ -104,19 +104,19 @@ public class CardController {
     }
 
     /**
-     * Card Column 만 수정
+     * Card Progress 만 수정
      *
      * @param userDetails
      * @param cardId
      * @param request
      */
     @PatchMapping("/cloumn/{cardId}")
-    public ResponseEntity<CommonResponse<?>> updateCardColumn(
+    public ResponseEntity<CommonResponse<?>> updateCardProgress(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long cardId,
-            @Valid @RequestBody final CardUpdateOnlyColumnRequest request
+            @Valid @RequestBody final CardUpdateOnlyProgressRequest request
     ) {
-        Card updatedCard = cardService.updateCardColumn(userDetails.getUser(), cardId, request);
+        Card updatedCard = cardService.updateCardProgress(userDetails.getUser(), cardId, request);
         return getResponseEntity(CardUpdateResponse.of(updatedCard), "수정 성공");
     }
 

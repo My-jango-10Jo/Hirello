@@ -13,7 +13,7 @@ public class CardUpdateRequest {
     Long boardId;
 
     @NotNull
-    Long columnId;
+    Long progressId;
 
     @NotBlank(message = "제목을 입력해주세요.")
     String title;
