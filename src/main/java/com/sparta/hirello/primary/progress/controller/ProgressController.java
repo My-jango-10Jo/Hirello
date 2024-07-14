@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity;
 
-@RequestMapping("/api/columns")
+@RequestMapping("/api/progress")
 @RestController
 @RequiredArgsConstructor
 public class ProgressController {
@@ -25,7 +25,7 @@ public class ProgressController {
         return getResponseEntity(ProgressResponse.of(progress), "컬럼 생성 성공") ;
     }
 
-    @DeleteMapping("/{columnId}")
+    @DeleteMapping("/{progressId}")
     public ResponseEntity<CommonResponse<?>> deleteProgress(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         progressService.deleteProgress(id, userDetails.getUser());
         return getResponseEntity(id, "컬럼 삭제 완료");

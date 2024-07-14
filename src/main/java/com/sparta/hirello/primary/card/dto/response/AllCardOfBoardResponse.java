@@ -1,7 +1,7 @@
 package com.sparta.hirello.primary.card.dto.response;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.progress.entity.Progress;
+import com.sparta.hirello.primary.column.entity.Columns;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,7 +31,7 @@ public class AllCardOfBoardResponse {
 
         List<CardResponse> cardResponseList =
                 board.getProgressList().stream()
-                .flatMap(columns -> columns.getCardList().stream())
+                .flatMap(progress -> progress.getCardList().stream())
                 .map(CardResponse::of)
                 .collect(Collectors.toList());
 
