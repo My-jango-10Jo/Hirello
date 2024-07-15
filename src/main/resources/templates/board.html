@@ -76,11 +76,6 @@
         <div class="kanban-cards" id="in-progress-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
         <button class="add-card-btn" onclick="addCard('in-progress-progress')">Add Card</button>
     </div>
-    <div class="kanban-progress" id="review-progress" draggable="true" ondragstart="dragProgress(event)">
-        <h2>Review</h2>
-        <div class="kanban-cards" id="review-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
-        <button class="add-card-btn" onclick="addCard('review-progress')">Add Card</button>
-    </div>
     <div class="kanban-progress" id="done-progress" draggable="true" ondragstart="dragProgress(event)">
         <h2>Done</h2>
         <div class="kanban-cards" id="done-cards" ondrop="dropCard(event)" ondragover="allowDrop(event)"></div>
@@ -138,20 +133,20 @@
         const targetProgress = event.target.closest('.kanban-progress');
 
         if (targetProgress && progress !== targetProgress) {
-            const progressColumns = Array.from(board.children);
-            const targetIndex = progressColumns.indexOf(targetProgress);
+            const progress = Array.from(board.children);
+            const targetIndex = progress.indexOf(targetProgress);
 
-            board.insertBefore(progress, targetIndex > 0 ? progressColumns[targetIndex] : targetProgress);
+            board.insertBefore(progress, targetIndex > 0 ? progress[targetIndex + 1] : targetProgress);
             saveProgressOrder();
         }
     }
 
     // Save Card Order to Backend
     function saveCardOrder() {
-        const progressColumns = document.querySelectorAll('.kanban-progress');
+        const progress = document.querySelectorAll('.kanban-progress');
         const cardOrder = {};
 
-        progressColumns.forEach(progress => {
+        progress.forEach(progress => {
             const cards = Array.from(progress.querySelector('.kanban-cards').children);
             cardOrder[progress.id] = cards.map(card => card.id);
         });
@@ -172,11 +167,11 @@
             });
     }
 
-    // Save Progress Order to Backend
+    // Save progress Order to Backend
     function saveProgressOrder() {
         const board = document.getElementById('kanban-board');
-        const progressColumns = Array.from(board.children);
-        const progressOrder = progressColumns.map(progress => progress.id);
+        const progress = Array.from(board.children);
+        const progressOrder = progress.map(progress => progress.id);
 
         fetch('/api/saveProgressOrder', {
             method: 'POST',

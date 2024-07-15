@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,6 +67,8 @@ public class Card {
         return new Card (requestDto.getTitle(),requestDto.getDescription(), requestDto.getDeadlineAt(),
                 worker, progress,user);
     }
+
+    @Transactional
     public Card updateCard(CardUpdateRequest request, User worker) {
 
         this.title = request.getTitle();

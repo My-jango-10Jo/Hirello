@@ -15,6 +15,7 @@ import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
 import com.sparta.hirello.secondary.exception.NoAuthorityException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -99,8 +100,8 @@ public class CardService {
 
         Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
 
-        //수정할 카드 확인
-        Card targetCard = cardRepository.findById(cardId).orElseThrow(
+        //수정할 카드 확인(조회)
+        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
                 () -> new EntityNotFoundException("삭제된 카드입니다.")
         );
 
@@ -127,7 +128,7 @@ public class CardService {
         Progress existProgress  = existProgress(basicCheckedBoard, request.getProgressId());
 
         //수정할 카드 확인
-        Card targetCard = cardRepository.findById(cardId).orElseThrow(
+        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
                 () -> new EntityNotFoundException("삭제된 카드입니다.")
         );
 
@@ -149,7 +150,7 @@ public class CardService {
         Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
         basicCheckedBoard.checkProgress(request.getProgressId());
 
-        Card targetCard = cardRepository.findById(cardId).orElseThrow(
+        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
                 () -> new EntityNotFoundException("이미 삭제된 카드입니다.")
         );
 
