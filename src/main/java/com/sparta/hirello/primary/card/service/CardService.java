@@ -1,6 +1,8 @@
 package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
+import com.sparta.hirello.primary.board.entity.BoardMember;
+import com.sparta.hirello.primary.board.entity.BoardRole;
 import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.card.dto.request.CardCreateRequest;
@@ -43,7 +45,7 @@ public class CardService {
             throw new DuplicateTitleException(title);
         }
         User worker = getUser(request.getWorkerId());
-        return cardRepository.save(Card.of(request, progress, worker));
+        return cardRepository.save(Card.of(request, progress, worker, user));
     }
 
     /**
@@ -80,7 +82,7 @@ public class CardService {
         Card card = getCard(cardId);
         Progress progress = card.getProgress();
         Board board = progress.getBoard();
-        validateInvitedUser(board, user);
+        verifyCardAuthority(card, user);
 
         int currentOrder = card.getOrder();
         int newOrder = request.getNewOrder();
@@ -100,7 +102,7 @@ public class CardService {
     @Transactional
     public Card updateCard(Long cardId, CardUpdateRequest request, User user) {
         Card card = getCard(cardId);
-        validateInvitedUser(card.getProgress().getBoard(), user);
+        verifyCardAuthority(card, user);
         // 작업자 수정
         User worker = null;
         if (request.getWorkerId() != null) {
@@ -116,7 +118,7 @@ public class CardService {
     @Transactional
     public void deleteCard(Long cardId, User user) {
         Card card = getCard(cardId);
-        validateInvitedUser(card.getProgress().getBoard(), user);
+        verifyCardAuthority(card, user);
 
         int currentOrder = card.getOrder();
         cardRepository.delete(card);
@@ -152,6 +154,21 @@ public class CardService {
     private void validateInvitedUser(Board board, User user) {
         if (!boardMemberRepository.existsByBoardAndUser(board, user)) {
             throw new UninvitedBoardMemberException();
+        }
+    }
+
+    /**
+     * 해당 카드에 대한 권한이 있는 사용자인지 검증
+     */
+    private void verifyCardAuthority(Card card, User user) {
+        Board board = card.getProgress().getBoard();
+        BoardMember boardMember = boardMemberRepository.findByBoardAndUser(board, user)
+                .orElseThrow(UninvitedBoardMemberException::new);
+
+        if (boardMember.getBoardRole().equals(BoardRole.USER)) {
+            if (!card.getUser().getId().equals(user.getId())) {
+                throw new IllegalArgumentException("해당 카드에 대한 권한이 없습니다.");
+            }
         }
     }
 
