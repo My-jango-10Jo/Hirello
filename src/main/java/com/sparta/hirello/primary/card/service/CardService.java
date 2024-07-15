@@ -139,7 +139,7 @@ public class CardService {
     }
 
     private Card getCard(Long cardId) {
-        return cardRepository.findById(cardId)
+        return cardRepository.findByIdWithPessimisticLock(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
     }
 

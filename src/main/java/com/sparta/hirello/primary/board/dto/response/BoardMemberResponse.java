@@ -1,7 +1,6 @@
 package com.sparta.hirello.primary.board.dto.response;
 
 import com.sparta.hirello.primary.board.entity.BoardMember;
-import com.sparta.hirello.primary.user.entity.User;
 import lombok.Data;
 
 @Data
