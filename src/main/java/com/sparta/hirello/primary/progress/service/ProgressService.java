@@ -12,6 +12,8 @@ import com.sparta.hirello.primary.progress.repository.ProgressRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.exception.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,15 @@ public class ProgressService {
             throw new DuplicateTitleException(title);
         }
         return progressRepository.save(Progress.of(title, board));
+    }
+
+    /**
+     * 해당 보드의 프로그레스 목록 조회
+     */
+    public Page<Progress> getBoardProgresses(Long boardId, User user, Pageable pageable) {
+        Board board = getBoard(boardId);
+        validateInvitedUser(board, user);
+        return progressRepository.findByBoardOrderByOrder(board, pageable);
     }
 
     /**
@@ -96,11 +107,23 @@ public class ProgressService {
                 .orElseThrow(() -> new BoardNotFoundException(boardId));
     }
 
+    /**
+     * 해당 보드의 매니저 권한을 가진 사용자인지 검증
+     */
     private void validateBoardManager(Board board, User user) {
         BoardMember boardMember = boardMemberRepository.findByBoardAndUserWithPessimisticLock(board, user)
                 .orElseThrow(UninvitedBoardMemberException::new);
         if (!boardMember.getBoardRole().equals(BoardRole.MANAGER)) {
             throw new NotBoardManagerException();
+        }
+    }
+
+    /**
+     * 해당 보드에 초대된 사용자인지 검증
+     */
+    private void validateInvitedUser(Board board, User user) {
+        if (!boardMemberRepository.existsByBoardAndUser(board, user)) {
+            throw new UninvitedBoardMemberException();
         }
     }
 
