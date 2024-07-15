@@ -1,9 +1,11 @@
 package com.sparta.hirello.secondary.exception;
 
-import org.apache.commons.lang3.ObjectUtils;
+import jakarta.persistence.EntityNotFoundException;
 
-public class BoardNotFoundException extends NullPointerException {
-    public BoardNotFoundException(String msg){
-        super(msg);
+public class BoardNotFoundException extends EntityNotFoundException {
+
+    public BoardNotFoundException(Long boardId) {
+        super("Board with id " + boardId + " not found");
     }
+
 }
