@@ -1,7 +1,11 @@
 package com.sparta.hirello.secondary.exception;
 
-public class ProgressNotFoundException extends NullPointerException{
-    public ProgressNotFoundException(String msg){
-        super(msg);
+import jakarta.persistence.EntityNotFoundException;
+
+public class ProgressNotFoundException extends EntityNotFoundException {
+
+    public ProgressNotFoundException(Long progressId) {
+        super("Progress with id " + progressId + " not found");
     }
+
 }

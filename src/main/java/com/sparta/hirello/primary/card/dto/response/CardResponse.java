@@ -8,23 +8,21 @@ import java.time.LocalDateTime;
 @Data
 public class CardResponse {
 
-    private Long boardId;
-
-    private Long cardId;
+    private Long id;
     private String title;
     private String description;
-    private LocalDateTime deadlineAt;
-    private String workerName;
+    private LocalDateTime deadline;
+    private int order;
     private Long progressId;
+    private Long workerId;
 
     private CardResponse(Card card) {
-        this.boardId = card.getProgress().getBoard().getId();
-        this.cardId = card.getId();
+        this.id = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
-        this.deadlineAt = card.getDeadlineAt();
-        this.workerName = card.getWorker().getUsername();
+        this.deadline = card.getDeadline();
         this.progressId = card.getProgress().getId();
+        this.workerId = card.getWorker().getId();
     }
 
     public static CardResponse of(Card card) {
