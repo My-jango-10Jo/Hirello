@@ -37,13 +37,17 @@ public class Card extends Timestamped {
     @Column(name = "card_order")
     private int order;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worker_id")
+    private User worker; // 작업자
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user; // 카드 생성자
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "progress_id")
     private Progress progress;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "worker_id")
-    private User worker;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -51,16 +55,17 @@ public class Card extends Timestamped {
     /**
      * 생성자
      */
-    private Card(CardCreateRequest request, Progress progress, User worker) {
+    private Card(CardCreateRequest request, Progress progress, User worker, User user) {
         this.title = request.getTitle();
         this.description = request.getDescription();
         this.deadline = request.getDeadline();
         this.progress = progress;
+        this.user = user;
         this.worker = worker;
     }
 
-    public static Card of(CardCreateRequest request, Progress progress, User worker) {
-        return new Card(request, progress, worker);
+    public static Card of(CardCreateRequest request, Progress progress, User worker, User user) {
+        return new Card(request, progress, worker, user);
     }
 
     public void update(CardUpdateRequest request, User worker) {
