@@ -1,203 +1,196 @@
 package com.sparta.hirello.primary.card.service;
 
 import com.sparta.hirello.primary.board.entity.Board;
-import com.sparta.hirello.primary.board.entity.BoardMember;
 import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
-import com.sparta.hirello.primary.card.dto.request.CardDeleteRequest;
-import com.sparta.hirello.primary.card.dto.request.CardUpdateOnlyProgressRequest;
+import com.sparta.hirello.primary.card.dto.request.CardCreateRequest;
+import com.sparta.hirello.primary.card.dto.request.CardMoveOrderRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
-import com.sparta.hirello.primary.card.dto.request.CreateCardRequest;
 import com.sparta.hirello.primary.card.entity.Card;
 import com.sparta.hirello.primary.card.repository.CardRepository;
 import com.sparta.hirello.primary.progress.entity.Progress;
+import com.sparta.hirello.primary.progress.repository.ProgressRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
-import com.sparta.hirello.secondary.exception.NoAuthorityException;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.LockModeType;
+import com.sparta.hirello.secondary.exception.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CardService {
 
-    private final UserRepository userRepository;
-    private final BoardRepository boardRepository;
     private final CardRepository cardRepository;
+    private final BoardRepository boardRepository;
     private final BoardMemberRepository boardMemberRepository;
+    private final ProgressRepository progressRepository;
+    private final UserRepository userRepository;
 
     /**
-     * Card 생성
+     * 카드 생성
      */
     @Transactional
-    public Card createCard(User loginUser, CreateCardRequest request) {
-
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        Progress existProgress = existProgress(basicCheckedBoard, request.getProgressId());
-
-        //할당된 작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = getInvitedUser(basicCheckedBoard.getId(), request.getWorkerId());
-
-        Card newCard = Card.of(request, loginUser, worker, existProgress);
-        return cardRepository.save(newCard);
-    }
-
-    /**
-     * Board 의 모든 Card 조회
-     */
-
-    public Board getAllCardOfBoard(User loginUser, Long boardId) {
-
-        return getBoard(boardId,loginUser.getUsername());
-    }
-
-    /**
-     * 특정 Worker 의 모든 Card 조회
-     */
-    public List<Card> getCardOfSpecificWorker(User loginUser, Long boardId, Long workerId) {
-
-        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
-
-        //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = getInvitedUser(basicCheckedBoard.getId(), workerId);
-
-        List<Card> CardListOfSpecificWorker = cardRepository.findByWorkerId(worker.getId());
-        if (CardListOfSpecificWorker.isEmpty()) {
-            throw new EntityNotFoundException("작업자에게 할당된 카드가 없습니다.");
+    public Card createCard(CardCreateRequest request, User user) {
+        Progress progress = getProgress(request.getProgressId());
+        validateInvitedUser(progress.getBoard(), user);
+        // 이미 존재하는 카드인지 확인
+        String title = request.getTitle();
+        if (cardRepository.existsByTitle(title)) {
+            throw new DuplicateTitleException(title);
         }
-        return CardListOfSpecificWorker;
+        User worker = getUser(request.getWorkerId());
+        return cardRepository.save(Card.of(request, progress, worker));
     }
 
     /**
-     * 특정 Column 의 모든 Card 조회
+     * 해당 보드의 카드 목록 조회 - 작업자별, 프로그레스별
      */
-    public List<Card> getCardOfProgress(User loginUser, Long boardId, Long progressId) {
-
-        //board 존재 확인 및 추출
-        Board basicCheckedBoard = getBoard(boardId,loginUser.getUsername());
-        Progress existProgress = existProgress(basicCheckedBoard, progressId);
-
-        List<Card> cardListOfProgress = cardRepository.findByProgressId(existProgress.getId());
-        if (cardListOfProgress.isEmpty()) {
-            throw new EntityNotFoundException("컬럼이 비어있습니다.");
+    public Page<Card> getCards(Long boardId, Long workerId, Long progressId, User user, Pageable pageable) {
+        Board board = getBoard(boardId);
+        validateInvitedUser(board, user);
+        // 해당 보드의 전체 카드 조회
+        if (workerId == null && progressId == null) {
+            return cardRepository.findByBoard(board, pageable);
         }
-        return cardListOfProgress;
+        // 작업자별 조회
+        if (progressId == null) {
+            User worker = getUser(workerId);
+            return cardRepository.findByBoardAndWorker(board, worker, pageable);
+        }
+        // 프로그레스별 조회
+        if (workerId == null) {
+            Progress progress = getProgress(progressId);
+            return cardRepository.findByBoardAndProgress(board, progress, pageable);
+        }
+        // 작업자, 프로그레스별 조회
+        User worker = getUser(workerId);
+        Progress progress = getProgress(progressId);
+        return cardRepository.findByBoardAndWorkerAndProgress(board, worker, progress, pageable);
     }
 
     /**
-     * Card 내용 업데이트(progress 제외)
+     * 카드 이동
      */
     @Transactional
-    public Card updateCard(User loginUser, Long cardId, CardUpdateRequest request) {
+    public Card moveCard(Long cardId, CardMoveOrderRequest request, User user) {
+        Card card = getCard(cardId);
+        Progress progress = card.getProgress();
+        Board board = progress.getBoard();
+        validateInvitedUser(board, user);
 
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
+        int currentOrder = card.getOrder();
+        int newOrder = request.getNewOrder();
 
-        //수정할 카드 확인(조회)
-        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
-                () -> new EntityNotFoundException("삭제된 카드입니다.")
-        );
-
-        //수정할 카드의 컬럼 존재
-        basicCheckedBoard.checkProgress(request.getProgressId());
-
-        //작업자가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        User worker = request.getWorkerName() != null ?
-                getInvitedUser(basicCheckedBoard.getId(), getUserId(request.getWorkerName()))
-                : null;
-
-        Card updatedCard = targetCard.updateCard(request, worker);
-        cardRepository.save(updatedCard);
-        return updatedCard;
+        if (request.getNewProgressId() == null) {
+            moveCardWithinProgress(currentOrder, newOrder, progress, card); // 프로그레스 내에서 이동
+        } else {
+            Progress newProgress = getProgress(request.getNewProgressId());
+            moveCardToAnotherProgress(currentOrder, newOrder, progress, newProgress, card); // 다른 프로그레스로 이동
+        }
+        return card;
     }
 
     /**
-     * Card 의 Column 변경(이동)
+     * 카드 수정
      */
     @Transactional
-    public Card updateCardProgress(User loginUser, Long cardId, CardUpdateOnlyProgressRequest request) {
-
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        Progress existProgress  = existProgress(basicCheckedBoard, request.getProgressId());
-
-        //수정할 카드 확인
-        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
-                () -> new EntityNotFoundException("삭제된 카드입니다.")
-        );
-
-        //카드끼리의 위치 정하기 로직
-
-
-        Card updatedCard = targetCard.updateCardProgress(existProgress);
-
-        cardRepository.save(updatedCard);
-        return updatedCard;
+    public Card updateCard(Long cardId, CardUpdateRequest request, User user) {
+        Card card = getCard(cardId);
+        validateInvitedUser(card.getProgress().getBoard(), user);
+        // 작업자 수정
+        User worker = null;
+        if (request.getWorkerId() != null) {
+            worker = getUser(request.getWorkerId());
+        }
+        card.update(request, worker);
+        return card;
     }
 
     /**
-     * Card 삭제
+     * 카드 삭제
      */
     @Transactional
-    public void deleteCard(User loginUser, Long cardId, CardDeleteRequest request) {
+    public void deleteCard(Long cardId, User user) {
+        Card card = getCard(cardId);
+        validateInvitedUser(card.getProgress().getBoard(), user);
 
-        Board basicCheckedBoard = getBoard(request.getBoardId(),loginUser.getUsername());
-        basicCheckedBoard.checkProgress(request.getProgressId());
+        int currentOrder = card.getOrder();
+        cardRepository.delete(card);
 
-        Card targetCard = cardRepository.findByIdWithPessimisticLock(cardId).orElseThrow(
-                () -> new EntityNotFoundException("이미 삭제된 카드입니다.")
-        );
-
-        //redirect 해서 확인 받기? // 또는 delete 까지는 진행하지 말고 끝낸 다음 Controller 에서 Controller 를 호출하게 만들기?
-        cardRepository.delete(targetCard);
-    }
-
-
-    private Board getBoard(Long boardId, String username) { //메서드명 정정 //check validation
-        //board 존재 확인 및 추출
-        Board checkedBoard = getBoard(boardId);
-
-        //loginUser 가 해당 board 의 Manager 또는 초대받은 유저인지 확인
-        Long loginUserId = getUserId(username);
-        checkMember(checkedBoard.getId(), loginUserId);
-
-        return checkedBoard;
+        // 해당 카드보다 뒤에 있는 카드들의 순서 당기기
+        Progress progress = card.getProgress();
+        cardRepository.decreaseOrderBetween(progress, currentOrder + 1, progress.getCards().size());
     }
 
     private Board getBoard(Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("보드가 존재하지 않습니다")); //임시 예외 처리
+                .orElseThrow(() -> new BoardNotFoundException(boardId));
     }
 
-    private Long getUserId(String username) {
-        return userRepository.findUserIdByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("찾을 수 없는 사용자입니다.")); //임시 예외 처리
+    private Progress getProgress(Long progressId) {
+        return progressRepository.findById(progressId)
+                .orElseThrow(() -> new ProgressNotFoundException(progressId));
     }
 
-    private void checkMember(Long boardId, Long userId) {
-        boardMemberRepository.findByUserIdAndBoardId(userId, boardId).orElseThrow(
-                () -> new NoAuthorityException("Card 생성 권한이 없습니다")
-        );
+    private Card getCard(Long cardId) {
+        return cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNotFoundException(cardId));
     }
 
-    private Progress existProgress(Board board, Long progressId) { //getColumn 으로
-
-        return board.getProgressList().stream()
-                .filter(progress -> progress.getId().equals(progressId))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("컬럼이 존재하지 않습니다"));
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    private User getInvitedUser(Long boardId, Long workerId) {
-        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardId(workerId, boardId)
-                .orElseThrow(() -> new EntityNotFoundException("보드멤버가 아닙니다."));
-
-        return boardMember.getUser();
+    /**
+     * 해당 보드에 초대된 사용자인지 검증
+     */
+    private void validateInvitedUser(Board board, User user) {
+        if (!boardMemberRepository.existsByBoardAndUser(board, user)) {
+            throw new UninvitedBoardMemberException();
+        }
     }
+
+    /**
+     * 프로그레스 내에서 카드 이동
+     */
+    private void moveCardWithinProgress(int currentOrder, int newOrder, Progress progress, Card card) {
+        // 순서가 변하지 않은 경우
+        if (currentOrder == newOrder) {
+            throw new IllegalArgumentException("현재 위치와 동일한 위치입니다.");
+        }
+        // 순서가 부적절한 경우
+        if (newOrder < 0 || newOrder > progress.getCards().size()) {
+            throw new InvalidOrderException();
+        }
+        // 해당 카드로 인해 순서가 바뀐 카드들의 order 필드 증감
+        if (currentOrder < newOrder) {
+            cardRepository.decreaseOrderBetween(progress, currentOrder + 1, newOrder);
+        } else {
+            cardRepository.increaseOrderBetween(progress, newOrder, currentOrder - 1);
+        }
+        card.updateOrder(newOrder);
+    }
+
+    /**
+     * 다른 프로그레스로 카드 이동
+     */
+    private void moveCardToAnotherProgress(int currentOrder, int newOrder, Progress progress, Progress newProgress, Card card) {
+        // 순서가 부적절한 경우
+        if (newOrder < 0 || newOrder > newProgress.getCards().size()) {
+            throw new InvalidOrderException();
+        }
+        // 기존 프로그레스의 카드 순서 조정
+        cardRepository.decreaseOrderBetween(progress, currentOrder + 1, progress.getCards().size());
+        // 새 프로그레스의 카드 순서 조정
+        cardRepository.increaseOrderBetween(newProgress, newOrder, newProgress.getCards().size());
+        // 카드의 프로그레스와 순서 업데이트
+        card.updateProgress(newProgress);
+        card.updateOrder(newOrder);
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.sparta.hirello.secondary.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
 
-    public UserNotFoundException(Long invalidId) {
-        super("User Not Found With Id : " + invalidId);
+public class UserNotFoundException extends EntityNotFoundException {
+
+    public UserNotFoundException(Long userId) {
+        super("User with id " + userId + " not found");
     }
 
 }

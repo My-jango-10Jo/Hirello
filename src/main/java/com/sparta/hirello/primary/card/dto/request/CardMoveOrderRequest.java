@@ -1,16 +1,14 @@
 package com.sparta.hirello.primary.card.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-public class CardDeleteRequest {
-
-
-    @NotNull
-    Long boardId;
+@Data
+public class CardMoveOrderRequest {
 
     @NotNull
-    Long progressId;
+    private int newOrder;
+
+    private Long newProgressId;
 
 }
