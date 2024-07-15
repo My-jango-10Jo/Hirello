@@ -1,7 +1,7 @@
 package com.sparta.hirello.primary.progress.controller;
 
 import com.sparta.hirello.primary.progress.dto.request.ProgressCreateRequest;
-import com.sparta.hirello.primary.progress.dto.request.ProgressMoveRequest;
+import com.sparta.hirello.primary.progress.dto.request.ProgressMoveOrderRequest;
 import com.sparta.hirello.primary.progress.dto.response.ProgressResponse;
 import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.progress.service.ProgressService;
@@ -37,10 +37,10 @@ public class ProgressController {
     /**
      * 프로그레스 순서 이동
      */
-    @PatchMapping("/{progressId}")
+    @PatchMapping("/{progressId}/move-order")
     public ResponseEntity<CommonResponse<?>> moveProgress(
             @PathVariable Long progressId,
-            @Valid @RequestBody ProgressMoveRequest request,
+            @Valid @RequestBody ProgressMoveOrderRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Progress progress = progressService.moveProgress(progressId, request, userDetails.getUser());

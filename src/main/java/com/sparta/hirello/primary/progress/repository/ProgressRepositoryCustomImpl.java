@@ -1,20 +1,25 @@
-//package com.sparta.hirello.primary.progress.repository;
-//
-//import com.querydsl.jpa.impl.JPAQueryFactory;
-//import com.sparta.hirello.primary.board.entity.Board;
-//import com.sparta.hirello.primary.progress.repository.ProgressRepositoryCustom;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.stereotype.Repository;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import static com.sparta.hirello.primary.progress.entity.QProgress.progress;
-//
-//@Repository
-//@RequiredArgsConstructor
-//public class ProgressRepositoryCustomImpl implements ProgressRepositoryCustom {
-//
-//    private final JPAQueryFactory queryFactory;
-//
+package com.sparta.hirello.primary.progress.repository;
+
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.hirello.primary.board.entity.Board;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@RequiredArgsConstructor
+public class ProgressRepositoryCustomImpl implements ProgressRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public void increaseOrderBetween(Board board, int startOrder, int endOrder) {
+
+    }
+
+    @Override
+    public void decreaseOrderBetween(Board board, int startOrder, int endOrder) {
+
+    }
 //    @Override
 //    @Transactional
 //    public void incrementOrderBetween(Board board, int startOrder, int endOrder) {
@@ -34,4 +39,5 @@
 //                        .and(progress.order.between(startOrder, endOrder)))
 //                .execute();
 //    }
-//}
+
+}

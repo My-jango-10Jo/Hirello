@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ProgressMoveRequest {
+public class ProgressMoveOrderRequest {
 
     @NotNull
     private int newOrder;

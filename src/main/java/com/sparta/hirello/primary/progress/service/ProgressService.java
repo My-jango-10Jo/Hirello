@@ -6,7 +6,7 @@ import com.sparta.hirello.primary.board.entity.BoardRole;
 import com.sparta.hirello.primary.board.repository.BoardMemberRepository;
 import com.sparta.hirello.primary.board.repository.BoardRepository;
 import com.sparta.hirello.primary.progress.dto.request.ProgressCreateRequest;
-import com.sparta.hirello.primary.progress.dto.request.ProgressMoveRequest;
+import com.sparta.hirello.primary.progress.dto.request.ProgressMoveOrderRequest;
 import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.progress.repository.ProgressRepository;
 import com.sparta.hirello.primary.user.entity.User;
@@ -43,7 +43,7 @@ public class ProgressService {
      * 프로그레스 순서 이동
      */
     @Transactional
-    public Progress moveProgress(Long progressId, ProgressMoveRequest request, User user) {
+    public Progress moveProgress(Long progressId, ProgressMoveOrderRequest request, User user) {
         Progress progress = getProgress(progressId);
         Board board = progress.getBoard();
         validateBoardManager(board, user);
@@ -56,10 +56,10 @@ public class ProgressService {
             throw new IllegalArgumentException("현재 위치와 동일한 위치입니다.");
         }
         // 순서가 부적절한 경우
-        if (newOrder < 0 || newOrder >= board.getProgresses().size()) {
-            throw new InvalidProgressOrderException();
+        if (newOrder < 0 || newOrder > board.getProgresses().size()) {
+            throw new InvalidOrderException();
         }
-        // 해당 프로그레스로 인해 순서가 바뀐 프로그레스의 order 필드 증감
+        // 해당 프로그레스로 인해 순서가 바뀐 프로그레스들의 order 필드 증감
         if (currentOrder < newOrder) {
             progressRepository.decreaseOrderBetween(board, currentOrder + 1, newOrder);
         } else {
