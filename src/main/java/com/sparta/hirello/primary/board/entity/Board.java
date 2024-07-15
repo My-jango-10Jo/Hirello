@@ -32,6 +32,8 @@ public class Board extends Timestamped {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Progress> progresses = new ArrayList<>();
 
+    @Version
+    private Integer version;
     /**
      * 생성자
      */
