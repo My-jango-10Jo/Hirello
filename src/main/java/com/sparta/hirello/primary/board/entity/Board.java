@@ -5,13 +5,12 @@ import com.sparta.hirello.primary.progress.entity.Progress;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.secondary.base.entity.Timestamped;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.AccessLevel;
 
 @Entity
 @Getter

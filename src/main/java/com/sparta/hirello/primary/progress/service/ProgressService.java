@@ -8,8 +8,8 @@ import com.sparta.hirello.primary.progress.repository.ProgressRepository;
 import com.sparta.hirello.primary.user.entity.User;
 import com.sparta.hirello.primary.user.repository.UserRepository;
 import com.sparta.hirello.secondary.exception.BoardNotFoundException;
-import com.sparta.hirello.secondary.exception.ProgressDuplicatedException;
 import com.sparta.hirello.secondary.exception.PermissionDeniedException;
+import com.sparta.hirello.secondary.exception.ProgressDuplicatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
