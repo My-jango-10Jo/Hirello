@@ -23,6 +23,7 @@ public class Progress extends Timestamped {
 
     private String title;
 
+    @Column(name = "progress_order")
     private int order;
 
     @ManyToOne(fetch = FetchType.LAZY)

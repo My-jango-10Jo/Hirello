@@ -33,6 +33,7 @@ public class Card extends Timestamped {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime deadline;
 
+    @Column(name = "card_order")
     private int order;
 
     @ManyToOne(fetch = FetchType.LAZY)
