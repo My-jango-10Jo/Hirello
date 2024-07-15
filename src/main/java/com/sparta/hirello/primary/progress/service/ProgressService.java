@@ -95,7 +95,7 @@ public class ProgressService {
         progressRepository.flush();
 
         // 해당 프로그레스보다 뒤에 있는 프로그레스의 순서 당기기
-        progressRepository.decreaseOrderBetween(board, currentOrder + 1, board.getProgresses().size());
+        progressRepository.decreaseOrderBetween(board, currentOrder, board.getProgresses().size());
     }
 
     private Progress getProgress(Long progressId) {
