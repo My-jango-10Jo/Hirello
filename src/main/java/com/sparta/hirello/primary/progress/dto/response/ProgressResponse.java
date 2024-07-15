@@ -7,16 +7,19 @@ import lombok.Data;
 public class ProgressResponse {
 
     private Long id;
-    private String progressName;
-    private Long userId;
+    private String title;
+    private int order;
+    private Long boardId;
 
-    private ProgressResponse(Progress progress){
-        this.id=progress.getId();
-        this.progressName=progress.getProgressName();
-        this.userId=progress.getUser().getId();
+    private ProgressResponse(Progress progress) {
+        this.id = progress.getId();
+        this.title = progress.getTitle();
+        this.order = progress.getOrder();
+        this.boardId = progress.getBoard().getId();
     }
 
     public static ProgressResponse of(Progress progress) {
         return new ProgressResponse(progress);
     }
+
 }
