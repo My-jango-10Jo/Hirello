@@ -122,10 +122,11 @@ public class CardService {
 
         int currentOrder = card.getOrder();
         cardRepository.delete(card);
+        progressRepository.flush();
 
         // 해당 카드보다 뒤에 있는 카드들의 순서 당기기
         Progress progress = card.getProgress();
-        cardRepository.decreaseOrderBetween(progress, currentOrder + 1, progress.getCards().size());
+        cardRepository.decreaseOrderBetween(progress, currentOrder, progress.getCards().size());
     }
 
     private Board getBoard(Long boardId) {

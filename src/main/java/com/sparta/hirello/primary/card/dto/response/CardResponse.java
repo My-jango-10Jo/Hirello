@@ -24,6 +24,8 @@ public class CardResponse {
         this.deadline = card.getDeadline();
         this.progressId = card.getProgress().getId();
         this.workerId = card.getWorker().getId();
+        this.userId = card.getUser().getId();
+        this.order = card.getOrder();
     }
 
     public static CardResponse of(Card card) {

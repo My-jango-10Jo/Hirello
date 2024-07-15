@@ -1,6 +1,5 @@
 package com.sparta.hirello.primary.card.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hirello.primary.card.dto.request.CardCreateRequest;
 import com.sparta.hirello.primary.card.dto.request.CardUpdateRequest;
 import com.sparta.hirello.primary.comment.entity.Comment;
@@ -30,13 +29,12 @@ public class Card extends Timestamped {
 
     private String description;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime deadline;
 
     @Column(name = "card_order")
     private int order;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "worker_id")
     private User worker; // 작업자
 
@@ -61,6 +59,8 @@ public class Card extends Timestamped {
         this.progress = progress;
         this.user = user;
         this.worker = worker;
+        this.order = progress.getCards().size();
+        progress.getCards().add(this);
     }
 
     public static Card of(CardCreateRequest request, Progress progress, User worker, User user) {
@@ -80,10 +80,6 @@ public class Card extends Timestamped {
 
     public void updateProgress(Progress progress) {
         this.progress = progress;
-    }
-
-    public void updateWorker(User worker) {
-        this.worker = worker;
     }
 
 }
