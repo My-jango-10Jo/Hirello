@@ -97,7 +97,7 @@ public class ProgressService {
     }
 
     private void validateBoardManager(Board board, User user) {
-        BoardMember boardMember = boardMemberRepository.findByBoardAndUser(board, user)
+        BoardMember boardMember = boardMemberRepository.findByBoardAndUserWithPessimisticLock(board, user)
                 .orElseThrow(UninvitedBoardMemberException::new);
         if (!boardMember.getBoardRole().equals(BoardRole.MANAGER)) {
             throw new NotBoardManagerException();

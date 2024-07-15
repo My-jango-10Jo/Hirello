@@ -49,7 +49,7 @@ public class CardService {
     }
 
     /**
-     * 해당 보드의 카드 목록 조회 - 작업자별, 프로그레스별
+     * 해당 보드의 카드 목록 조회 - 보드 전체, 작업자별, 프로그레스별
      */
     public Page<Card> getCards(Long boardId, Long workerId, Long progressId, User user, Pageable pageable) {
         Board board = getBoard(boardId);
@@ -81,7 +81,6 @@ public class CardService {
     public Card moveCard(Long cardId, CardMoveOrderRequest request, User user) {
         Card card = getCard(cardId);
         Progress progress = card.getProgress();
-        Board board = progress.getBoard();
         verifyCardAuthority(card, user);
 
         int currentOrder = card.getOrder();
@@ -108,6 +107,7 @@ public class CardService {
         if (request.getWorkerId() != null) {
             worker = getUser(request.getWorkerId());
         }
+
         card.update(request, worker);
         return card;
     }
@@ -162,7 +162,7 @@ public class CardService {
      */
     private void verifyCardAuthority(Card card, User user) {
         Board board = card.getProgress().getBoard();
-        BoardMember boardMember = boardMemberRepository.findByBoardAndUser(board, user)
+        BoardMember boardMember = boardMemberRepository.findByBoardAndUserWithPessimisticLock(board, user)
                 .orElseThrow(UninvitedBoardMemberException::new);
 
         if (boardMember.getBoardRole().equals(BoardRole.USER)) {

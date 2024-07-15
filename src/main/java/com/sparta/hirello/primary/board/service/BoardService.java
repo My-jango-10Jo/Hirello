@@ -119,7 +119,7 @@ public class BoardService {
     }
 
     private BoardMember getBoardMember(Board board, User user) {
-        return boardMemberRepository.findByBoardAndUser(board, user)
+        return boardMemberRepository.findByBoardAndUserWithPessimisticLock(board, user)
                 .orElseThrow(UninvitedBoardMemberException::new);
     }
 
