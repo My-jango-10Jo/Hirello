@@ -12,7 +12,7 @@ public interface CardRepository extends JpaRepository<Card, Long>, CardRepositor
 
     boolean existsByTitle(String title);
 
-    @Lock(LockModeType.WRITE)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Card c where c.id = :id")
     Optional<Card> findByIdWithPessimisticLock(Long id);
 

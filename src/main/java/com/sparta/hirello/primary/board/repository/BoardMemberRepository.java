@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public interface BoardMemberRepository extends JpaRepository<BoardMember, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
-    @Query("select bm from BoardMember bm where bm.id in :id ")
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select bm from BoardMember bm where bm.board = :board and bm.user = :user")
     Optional<BoardMember> findByBoardAndUserWithPessimisticLock(Board board, User user);
 
     boolean existsByBoardAndUser(Board board, User invitedUser);

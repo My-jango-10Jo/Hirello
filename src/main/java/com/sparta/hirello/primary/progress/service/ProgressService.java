@@ -87,7 +87,7 @@ public class ProgressService {
     }
 
     private Progress getProgress(Long progressId) {
-        return progressRepository.findById(progressId)
+        return progressRepository.findByIdWithPessimisticLock(progressId)
                 .orElseThrow(() -> new ProgressNotFoundException(progressId));
     }
 
