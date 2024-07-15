@@ -24,7 +24,6 @@ import static com.sparta.hirello.secondary.util.ControllerUtil.getResponseEntity
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
@@ -32,25 +31,23 @@ public class UserController {
     /**
      * 회원가입
      */
-    @PostMapping("/user/signup")
+    @PostMapping("/signup")
     public ResponseEntity<CommonResponse<?>> signup(
             @Valid @RequestBody SignupRequest request
     ) {
         User user = userService.signup(request);
-
         return getResponseEntity(UserResponse.of(user), "회원가입 성공");
     }
 
     /**
      * 로그아웃 - 내부적으로 상태가 변하므로 POST 선택
      */
-    @PostMapping("/user/logout")
+    @PostMapping("/logout")
     public ResponseEntity<CommonResponse<?>> logout(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long response = userService.logout(userDetails.getUser());
-
-        return getResponseEntity(response, "로그아웃 성공");
+        userService.logout(userDetails.getUser());
+        return getResponseEntity(null, "로그아웃 성공");
     }
 
     /**
@@ -78,7 +75,6 @@ public class UserController {
             @PathVariable Long userId
     ) {
         User user = userService.getUser(userId);
-
         return getResponseEntity(UserResponse.of(user), "프로필 조회 성공");
     }
 
@@ -92,7 +88,6 @@ public class UserController {
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         User user = userService.updateProfile(userId, request, userDetails.getUser());
-
         return getResponseEntity(UserResponse.of(user), "프로필 수정 성공");
     }
 
@@ -106,7 +101,6 @@ public class UserController {
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         User user = userService.updatePassword(userId, request, userDetails.getUser());
-
         return getResponseEntity(UserResponse.of(user), "비빌번호 변경 성공");
     }
 
@@ -120,7 +114,6 @@ public class UserController {
             @Valid @RequestBody UserRoleRequest request
     ) {
         User user = userService.updateUserRole(userId, request.getRole());
-
         return getResponseEntity(UserResponse.of(user), "회원 권한 변경 성공");
     }
 

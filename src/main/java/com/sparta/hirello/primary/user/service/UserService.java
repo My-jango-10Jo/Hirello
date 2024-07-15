@@ -56,9 +56,8 @@ public class UserService {
      * 로그아웃
      */
     @Transactional
-    public Long logout(User user) {
+    public void logout(User user) {
         deleteRefreshToken(user);
-        return user.getId();
     }
 
     /**

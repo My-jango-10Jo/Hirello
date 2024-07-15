@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public JwtAuthenticationFilter(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
-        setFilterProcessesUrl("/api/user/login");
+        setFilterProcessesUrl("/login");
     }
 
     @Override
