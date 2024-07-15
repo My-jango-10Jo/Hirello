@@ -13,8 +13,9 @@ public class CardResponse {
     private String description;
     private LocalDateTime deadline;
     private int order;
-    private Long progressId;
     private Long workerId;
+    private Long userId;
+    private Long progressId;
 
     private CardResponse(Card card) {
         this.id = card.getId();
