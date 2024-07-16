@@ -80,6 +80,7 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom {
                         card.progress.board.eq(board),
                         card.progress.eq(progress)
                 )
+                .orderBy(card.order.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -107,6 +108,7 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom {
                         card.worker.eq(worker),
                         card.progress.eq(progress)
                 )
+                .orderBy(card.order.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
